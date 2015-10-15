@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
+using System.Windows.Input;
 
-namespace KeyMacro
+namespace MacroKey
 {
     class HookerKeys
     {
-        public delegate bool KeyHookHandler(Keys key, KeyState keyState);
+        public delegate bool KeyHookHandler(Key key, KeyState keyState);
 
         private KeyHookHandler m_keyHookHandler;
+        LowLevelKeyboardProcDelegate m_callback;
 
         public HookerKeys() { }
 
         private const int WH_KEYBOARD_LL = 13;
-
-        public enum KeyState { WM_KeyDown = 0x100, WM_KeyUp = 0x101 }
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern IntPtr SetWindowsHookEx(
@@ -41,7 +40,7 @@ namespace KeyMacro
         {
             if (nCode >= 0)
             {
-                Keys key = (Keys)Marshal.ReadInt32(lParam);
+                Key key = KeyInterop.KeyFromVirtualKey(Marshal.ReadInt32(lParam));
                 KeyState keyState = (KeyState)wParam;
 
                 return m_keyHookHandler(key, keyState)
@@ -58,9 +57,9 @@ namespace KeyMacro
 
         public void SetHook(KeyHookHandler keyHookHandler)
         {
-            this.m_keyHookHandler = keyHookHandler;
+            m_keyHookHandler = keyHookHandler;
             //фильтр - колбэк, при перехвате события
-            LowLevelKeyboardProcDelegate m_callback = LowLevelKeyboardHookProc;
+            m_callback = LowLevelKeyboardHookProc;
             //дескриптор файла, в котором содержится процедура фильтра, в данном случае 0, чтобы получить дескриптор файла текущего процесса
             IntPtr deskriptorFileProc = GetModuleHandle(IntPtr.Zero);
             //идентификатор потока, с которым должен быть связан хук, в данном случае 0, чтобы связаться со всеми существующими потоками
