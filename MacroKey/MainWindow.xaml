@@ -19,46 +19,59 @@
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FF37D637"/>
                     <GradientStop Color="#FF32C932" Offset="1"/>
-                    <GradientStop Color="#FF5034CF" Offset="0.5"/>
-                    <GradientStop Color="#FF36B9BF" Offset="0.75"/>
-                    <GradientStop Color="#FF36B9BF" Offset="0.25"/>
+                    <GradientStop Color="#FFC1CF34" Offset="0.5"/>
+                    <GradientStop Color="#FF7BBF36" Offset="0.75"/>
+                    <GradientStop Color="#FF7BBF36" Offset="0.25"/>
                 </LinearGradientBrush>
             </Border.Background>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*"/>
-                    <RowDefinition Height="0.7*"/>
+                    <RowDefinition Height="1*"/>
                     <RowDefinition Height="8*"/>
                 </Grid.RowDefinitions>
-                <TextBlock x:Name="textBlock" Grid.Row="0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" Text="Sequence"/>
-                <ListBox x:Name="listSequenceKey" Grid.Row="2" Margin="5" ItemsSource="{Binding}">
+                <TextBlock x:Name="textBlock" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Text="Sequence" FontWeight="Bold" TextDecorations="{x:Null}" FontSize="16"/>
+                <ListBox x:Name="listSequenceKey" Grid.Row="2" Margin="5" ItemsSource="{Binding}" BorderBrush="{x:Null}" Background="#FF8BD334">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding KeyValue}" />
-                                <TextBlock Text="{Binding KeyState}" Margin="5,0,0,0"/>
+                                <TextBlock Text="{Binding KeyMessage}" Margin="5,0,0,0"/>
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-                <Button x:Name="StratRecordSequence" Content="Record" Margin="5" FontSize="8" Grid.Row="1" Click="StartRecordSequence_Click"/>
+                <Button x:Name="recordSequenceButton" Content="Record" Margin="5" Grid.Row="1" Click="StartRecordSequence_Click" Background="#FF8BD334"/>
             </Grid>
         </Border>
         <Border BorderThickness="1" Margin="2" CornerRadius="10" Grid.Column="2">
             <Border.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF37D637" Offset="0.071"/>
+                    <GradientStop Color="#FF37D637"/>
                     <GradientStop Color="#FF32C932" Offset="1"/>
-                    <GradientStop Color="#FF33429E" Offset="0.414"/>
+                    <GradientStop Color="#FFC1CF34" Offset="0.5"/>
+                    <GradientStop Color="#FF7BBF36" Offset="0.75"/>
+                    <GradientStop Color="#FF7BBF36" Offset="0.25"/>
                 </LinearGradientBrush>
             </Border.Background>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
                     <RowDefinition Height="9*"/>
                 </Grid.RowDefinitions>
-                <TextBlock x:Name="textBlock1" TextWrapping="Wrap" Grid.Row="0" Text="Macros" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <ListBox x:Name="listBox1" Grid.Row="1" Margin="5"/>
+                <TextBlock x:Name="textBlock1" Grid.Row="0" Text="Macros" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="16"/>
+                <ListBox x:Name="listMacro" Grid.Row="2" Margin="5" BorderBrush="{x:Null}" Background="#FF8BD334" ItemsSource="{Binding}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding KeyValue}"/>
+                                <TextBlock Text="{Binding KeyMessage}" Margin="5,0,0,0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <Button x:Name="recordMacroButton" Content="Record" Margin="5" Grid.Row="1" Background="#FF8BD334" Click="StartRecordMacros_Click"/>
             </Grid>
         </Border>
         <Border BorderThickness="1" Margin="2" CornerRadius="10" Grid.Column="1">
@@ -66,9 +79,9 @@
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FF37D637"/>
                     <GradientStop Color="#FF32C932" Offset="1"/>
-                    <GradientStop Color="#FF5034CF" Offset="0.5"/>
-                    <GradientStop Color="#FF36B9BF" Offset="0.75"/>
-                    <GradientStop Color="#FF36B9BF" Offset="0.25"/>
+                    <GradientStop Color="#FFC1CF34" Offset="0.5"/>
+                    <GradientStop Color="#FF7BBF36" Offset="0.75"/>
+                    <GradientStop Color="#FF7BBF36" Offset="0.25"/>
                 </LinearGradientBrush>
             </Border.Background>
             <Grid Height="330" VerticalAlignment="Bottom">
@@ -76,7 +89,7 @@
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="9*"/>
                 </Grid.RowDefinitions>
-                <TextBlock x:Name="textBlock2" Grid.Row="0" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Text="MacroKey" FontSize="21.333"/>
+                <TextBlock x:Name="textBlock2" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="MacroKey" FontSize="21.333" FontWeight="Bold"/>
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*"/>
@@ -85,7 +98,37 @@
                         <RowDefinition Height="1*"/>
                         <RowDefinition Height="1*"/>
                     </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal"/>
+                    <Grid Grid.Row="0" Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="GUIHotkeyBox"  BorderBrush="#FF707070" Background="#FF8BD334" Grid.Row="0" Grid.Column="1" KeyDown="GUIHotkeyBox_KeyDown" GotFocus="Element_GotFocus" IsReadOnly="True"/>
+                        <TextBox x:Name="macrosModeBox" BorderBrush="#FF707070" Background="#FF8BD334" Grid.Row="1" Grid.Column="1" KeyDown="macrosModeBox_KeyDown" GotFocus="Element_GotFocus" IsReadOnly="True"/>
+                        <TextBlock x:Name="textBlock4" Text="Execute GUI Hotkey" Grid.Row="0" Grid.Column="0"/>
+                        <TextBlock x:Name="textBlock5" Text="Macros Mode Hotkey" Grid.Row="1" Grid.Column="0"/>
+                    </Grid>
+                    <Button x:Name="button2" Content="Create Macros" Grid.Row="1" Background="#FF8BD334" Margin="10" Click="CreateMacros_Click" GotFocus="Element_GotFocus"/>
+                    <Grid Grid.Row="2" Grid.RowSpan="3" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="8*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock x:Name="textBlock3" Text="Macros List" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0"/>
+                        <ListBox x:Name="listMacros" Background="#FF8BD334" Grid.Row="1" ItemsSource="{Binding}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
                 </Grid>
             </Grid>
         </Border>

@@ -3,17 +3,28 @@ using System.Windows.Input;
 
 namespace MacroKey
 {
-    public enum KeyState { WM_KEYDOWM = 0x100, WM_KEYUP = 0x101, WM_CHAR = 0x102, WM_DEADCHAR = 0x103, WM_SYSKEYDOWN = 0x104, WM_SYSKEYUP = 0x105, WM_SYSCHAR = 0x0106 }
+
     public class KeyData : IEquatable<KeyData>
     {
-        public string KeyValue { get; }
-        public KeyState KeyState { get; }
+        public enum KeyboardMessage { WM_KEYDOWM = 0x100, WM_KEYUP = 0x101, WM_CHAR = 0x102, WM_DEADCHAR = 0x103, WM_SYSKEYDOWN = 0x104, WM_SYSKEYUP = 0x105, WM_SYSCHAR = 0x0106 }
+
+        public short VirtualKeyCode { get; }
+        public short ScanCode { get; }
+        public int Flags { get; }
+        public KeyboardMessage KeyMessage { get; }
+        public string KeyValue
+        {
+            get
+            {
+                return KeyInterop.KeyFromVirtualKey(VirtualKeyCode).ToString();
+            }
+        }
 
         public override bool Equals(object other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            if (this.GetType() != other.GetType())
+            if (GetType() != other.GetType())
                 return false;
 
             return Equals((KeyData)other);
@@ -23,7 +34,7 @@ namespace MacroKey
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return this.KeyValue.Equals(other.KeyValue) && this.KeyState.Equals(other.KeyState);
+            return VirtualKeyCode.Equals(other.VirtualKeyCode) && KeyMessage.Equals(other.KeyMessage);
         }
 
         public override int GetHashCode()
@@ -31,10 +42,12 @@ namespace MacroKey
             return 0;
         }
 
-        public KeyData(Key key, KeyState keyState)
+        public KeyData(short virtualKeyCode, short scanCode, int flags, int keyboardMessage)
         {
-            KeyValue = key.ToString();
-            KeyState = keyState;
+            VirtualKeyCode = virtualKeyCode;
+            ScanCode = scanCode;
+            Flags = flags;
+            KeyMessage = (KeyboardMessage)keyboardMessage;
         }
     }
 }

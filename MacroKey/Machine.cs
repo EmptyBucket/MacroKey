@@ -1,19 +1,17 @@
-﻿using System.Collections.Generic;
-
-namespace MacroKey
+﻿namespace MacroKey
 {
     class Machine<KeyTypeTransition>
     {
-        private State<KeyTypeTransition> m_startState;
+        public State<KeyTypeTransition> StartState { get; }
 
         public Machine(State<KeyTypeTransition> startState)
         {
-            m_startState = startState;
+            StartState = startState;
         }
 
         public void AddBranch(State<KeyTypeTransition> state)
         {
-            AddMachineState(state, m_startState);
+            AddMachineState(state, StartState);
         }
 
         private void AddMachineState(State<KeyTypeTransition> state, State<KeyTypeTransition> oldState)
@@ -28,23 +26,6 @@ namespace MacroKey
                 {
                     oldState.AddNextState(key, state.NextState[key]);
                 }
-            }
-        }
-
-        public State<KeyTypeTransition> WalkState(KeyTypeTransition[] keys)
-        {
-            State<KeyTypeTransition> state = m_startState;
-            try
-            {
-                foreach (var key in keys)
-                {
-                    state = state.NextState[key];
-                }
-                return state;
-            }
-            catch (KeyNotFoundException)
-            {
-                return null;
             }
         }
     }

@@ -1,17 +1,30 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Windows.Input;
 
 namespace MacroKey
 {
-    class HookerKeys
+    public class HookerKeys
     {
-        public delegate bool KeyHookHandler(Key key, KeyState keyState);
+        public class KeyHookEventArgs : EventArgs
+        {
+            public short VirtualKeyCode { get; set; }
+            public short ScanCode { get; set; }
+            public int Flags { get; set; }
+            public int KeyboardMassage { get; set; }
+        }
 
-        private KeyHookHandler m_keyHookHandler;
-        LowLevelKeyboardProcDelegate m_callback;
+        [StructLayout(LayoutKind.Sequential)]
+        private struct KeyHookedStruct
+        {
+            internal short VirtualKeyCode;
+            internal short ScanCode;
+            internal int Flags;
+            internal int Time;
+            internal UIntPtr ExtraInfo;
+        }
 
-        public HookerKeys() { }
+
+        private LowLevelKeyboardProcDelegate m_callback;
 
         private const int WH_KEYBOARD_LL = 13;
 
@@ -40,10 +53,11 @@ namespace MacroKey
         {
             if (nCode >= 0)
             {
-                Key key = KeyInterop.KeyFromVirtualKey(Marshal.ReadInt32(lParam));
-                KeyState keyState = (KeyState)wParam;
+                KeyHookedStruct keyStruct = (KeyHookedStruct)Marshal.PtrToStructure(
+                    lParam, typeof(KeyHookedStruct));
+                int keyboardMessage = (int)wParam;
 
-                return m_keyHookHandler(key, keyState)
+                return HookedKey(new KeyHookEventArgs() { VirtualKeyCode = keyStruct.VirtualKeyCode, ScanCode = keyStruct.ScanCode, Flags = keyStruct.Flags, KeyboardMassage = keyboardMessage })
                     ? CallNextHookEx(m_hHook, nCode, wParam, lParam)
                     : new IntPtr(1);
             }
@@ -55,9 +69,12 @@ namespace MacroKey
 
         private IntPtr m_hHook;
 
-        public void SetHook(KeyHookHandler keyHookHandler)
+        public delegate bool KeyHookHandler(KeyHookEventArgs e);
+
+        public event KeyHookHandler HookedKey;
+
+        public void SetHook()
         {
-            m_keyHookHandler = keyHookHandler;
             //фильтр - колбэк, при перехвате события
             m_callback = LowLevelKeyboardHookProc;
             //дескриптор файла, в котором содержится процедура фильтра, в данном случае 0, чтобы получить дескриптор файла текущего процесса
