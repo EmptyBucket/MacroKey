@@ -40,6 +40,12 @@
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListBoxItem}">
+                            <EventSetter Event="GotFocus" Handler="ListElement_GotFocus"/>
+                            <EventSetter Event="LostFocus" Handler="ListElement_LostFocus"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
                 </ListBox>
                 <Button x:Name="recordSequenceButton" Content="Record" Margin="5" Grid.Row="1" Click="StartRecordSequence_Click" Background="#FF8BD334"/>
             </Grid>

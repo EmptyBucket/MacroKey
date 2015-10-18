@@ -55,9 +55,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="IData.cs" />
     <Compile Include="KeyData.cs" />
     <Compile Include="MachineWalker.cs" />
     <Compile Include="Macros.cs" />
+    <Compile Include="MouseData.cs" />
     <Compile Include="SenderKeyInput.cs" />
     <Compile Include="State.cs" />
     <Page Include="MainWindow.xaml">

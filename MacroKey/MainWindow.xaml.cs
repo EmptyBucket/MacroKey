@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace MacroKey
 {
@@ -12,12 +13,12 @@ namespace MacroKey
         private static ObservableCollection<KeyData> m_macroCollection = new ObservableCollection<KeyData>();
         private static ObservableCollection<Macros> m_macrosList = new ObservableCollection<Macros>();
 
-        private static Machine<KeyData> m_machine;
-        private static short m_keyExecuteGUI;
-        private static short m_keyMacrosMode;
-        private HookerKeys m_hookerKey;
+        private static Machine<KeyData> mMachine;
+        private static short mKeyExecuteGUI;
+        private static short mKeyMacrosMode;
+        private HookerKeys mHookerKey;
         private SenderKeyInput mSenderKey;
-        private MachineWalker<KeyData> m_machineWalker;
+        private MachineWalker<KeyData> mMachineWalker;
 
         public MainWindow()
         {
@@ -28,37 +29,37 @@ namespace MacroKey
         public bool m_hookSequence(HookerKeys.KeyHookEventArgs e)
         {
             KeyData keyData = new KeyData(e.VirtualKeyCode, e.ScanCode, e.Flags, e.KeyboardMassage);
-            State <KeyData> state = m_machineWalker.WalkMachine(keyData);
+            State <KeyData> state = mMachineWalker.WalkMachine(keyData);
             if (state != null)
             {
                 if (state.ActionState != null)
                 {
                     state.ActionState(state.ActionArg);
-                    m_hookerKey.HookedKey -= m_hookSequence;
+                    mHookerKey.HookedKey -= m_hookSequence;
                 }
-                if (e.VirtualKeyCode == m_keyMacrosMode)
-                    m_hookerKey.HookedKey -= m_hookSequence;
+                if (e.VirtualKeyCode == mKeyMacrosMode)
+                    mHookerKey.HookedKey -= m_hookSequence;
             }
             else
-                m_hookerKey.HookedKey -= m_hookSequence;
+                mHookerKey.HookedKey -= m_hookSequence;
             return true;
         }
 
         void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            m_machine = new Machine<KeyData>(new State<KeyData>());
-            m_hookerKey = new HookerKeys();
+            mMachine = new Machine<KeyData>(new State<KeyData>());
+            mHookerKey = new HookerKeys();
             mSenderKey = new SenderKeyInput();
-            m_hookerKey.SetHook();
+            mHookerKey.SetHook();
 
             listSequenceKey.DataContext = m_sequenceCollection;
             listMacro.DataContext = m_macroCollection;
             listMacros.DataContext = m_macrosList;
 
             bool goToHookSequence = false;
-            m_hookerKey.HookedKey += (args) =>
+            mHookerKey.HookedKey += (args) =>
             {
-                if (args.VirtualKeyCode == m_keyExecuteGUI && args.KeyboardMassage == (int)KeyData.KeyboardMessage.WM_KEYDOWM)
+                if (args.VirtualKeyCode == mKeyExecuteGUI && args.KeyboardMassage == (int)KeyData.KeyboardMessage.WM_KEYDOWM)
                     if (IsVisible)
                         Visibility = Visibility.Collapsed;
                     else
@@ -69,10 +70,10 @@ namespace MacroKey
                 if(goToHookSequence)
                 {
                     goToHookSequence = false;
-                    m_machineWalker = new MachineWalker<KeyData>(m_machine);
-                    m_hookerKey.HookedKey += new HookerKeys.KeyHookHandler(m_hookSequence);
+                    mMachineWalker = new MachineWalker<KeyData>(mMachine);
+                    mHookerKey.HookedKey += new HookerKeys.KeyHookHandler(m_hookSequence);
                 }
-                if (args.VirtualKeyCode == m_keyMacrosMode && args.KeyboardMassage == (int)KeyData.KeyboardMessage.WM_KEYDOWM)
+                if (args.VirtualKeyCode == mKeyMacrosMode && args.KeyboardMassage == (int)KeyData.KeyboardMessage.WM_KEYDOWM)
                     goToHookSequence = true;
                 
                 return true;
@@ -96,14 +97,14 @@ namespace MacroKey
             Button buttonSender = (Button)sender;
             if (buttonSender.Content.ToString() == "Record")
             {
-                m_hookerKey.HookedKey += new HookerKeys.KeyHookHandler(m_recordSequence);
+                mHookerKey.HookedKey += new HookerKeys.KeyHookHandler(m_recordSequence);
                 buttonSender.Content = "Stop";
                 recordMacroButton.Content = "Record";
-                m_hookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordMacro);
+                mHookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordMacro);
             }
             else
             {
-                m_hookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordSequence);
+                mHookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordSequence);
                 buttonSender.Content = "Record";
             }
         }
@@ -113,14 +114,14 @@ namespace MacroKey
             Button buttonSender = (Button)sender;
             if (buttonSender.Content.ToString() == "Record")
             {
-                m_hookerKey.HookedKey += new HookerKeys.KeyHookHandler(m_recordMacro);
+                mHookerKey.HookedKey += new HookerKeys.KeyHookHandler(m_recordMacro);
                 buttonSender.Content = "Stop";
                 recordSequenceButton.Content = "Record";
-                m_hookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordSequence);
+                mHookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordSequence);
             }
             else
             {
-                m_hookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordMacro);
+                mHookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordMacro);
                 buttonSender.Content = "Record";
             }
         }
@@ -153,7 +154,7 @@ namespace MacroKey
             }
             currentState.ActionArg = new List<KeyData>(m_macroCollection);
             currentState.ActionState = obj => mSenderKey.SendKeyPress((IEnumerable<KeyData>)obj);
-            m_machine.AddBranch(saveStartState);
+            mMachine.AddBranch(saveStartState);
 
             m_macrosList.Add(new Macros(new List<KeyData>(m_sequenceCollection), new List<KeyData>(m_macroCollection)));
             m_sequenceCollection.Clear();
@@ -162,7 +163,7 @@ namespace MacroKey
 
         private void GUIHotkeyBox_KeyDown(object sender, KeyEventArgs e)
         {
-            m_keyExecuteGUI = (short)KeyInterop.VirtualKeyFromKey(e.Key);
+            mKeyExecuteGUI = (short)KeyInterop.VirtualKeyFromKey(e.Key);
             TextBox tb = (TextBox)sender;
             tb.Text = e.Key.ToString();
             tb.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
@@ -170,7 +171,7 @@ namespace MacroKey
 
         private void macrosModeBox_KeyDown(object sender, KeyEventArgs e)
         {
-            m_keyMacrosMode = (short)KeyInterop.VirtualKeyFromKey(e.Key);
+            mKeyMacrosMode = (short)KeyInterop.VirtualKeyFromKey(e.Key);
             TextBox tb = (TextBox)sender;
             tb.Text = e.Key.ToString();
             tb.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
@@ -179,9 +180,50 @@ namespace MacroKey
         private void Element_GotFocus(object sender, RoutedEventArgs e)
         {
             recordSequenceButton.Content = "Record";
-            m_hookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordSequence);
+            mHookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordSequence);
             recordMacroButton.Content = "Record";
-            m_hookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordMacro);
+            mHookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordMacro);
+        }
+
+        private childItem FindVisualChild<childItem>(DependencyObject obj)
+        where childItem : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+                if (child != null && child is childItem)
+                    return (childItem)child;
+                else
+                {
+                    childItem childOfChild = FindVisualChild<childItem>(child);
+                    if (childOfChild != null)
+                        return childOfChild;
+                }
+            }
+            return null;
+        }
+
+        private void ListElement_GotFocus(object sender, RoutedEventArgs e)
+        {
+            ListBoxItem item = (ListBoxItem)sender;
+            ContentPresenter contentPresenter = FindVisualChild<ContentPresenter>(item);
+            DataTemplate dataTemplate = contentPresenter.ContentTemplate;
+            StackPanel stackPanel = (StackPanel)dataTemplate.FindName("listSequenceKey", contentPresenter);
+            Button removeElementButton = new Button();
+            removeElementButton.Click += (send, arg) =>
+            {
+                Panel parent = (Panel)VisualTreeHelper.GetParent(stackPanel);
+                parent.Children.Remove(stackPanel);
+            };
+            stackPanel.Children.Add(removeElementButton);
+        }
+
+        private void ListElement_LostFocus(object sender, RoutedEventArgs e)
+        {
+            StackPanel stackPanel = (StackPanel)sender;
+            foreach (UIElement item in stackPanel.Children)
+                if (item.GetType() == typeof(Button))
+                    stackPanel.Children.Remove(item);
         }
     }
 }
