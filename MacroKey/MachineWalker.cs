@@ -4,25 +4,39 @@ namespace MacroKey
 {
     class MachineWalker<KeyTypeTransition>
     {
-        private Machine<KeyTypeTransition> m_machine;
-        private State<KeyTypeTransition> m_currentState;
+        private Machine<KeyTypeTransition> mMachine;
+        private State<KeyTypeTransition> mStartState;
+        public State<KeyTypeTransition> StartState
+        {
+            set
+            {
+                mStartState = value;
+                mCurrentState = mStartState;
+            }
+            get
+            {
+                return mStartState;
+            }
+        }
+        private State<KeyTypeTransition> mCurrentState { get; set; }
 
         public MachineWalker(Machine<KeyTypeTransition> machine)
         {
-            m_machine = machine;
-            m_currentState = machine.StartState;
+            mMachine = machine;
+            StartState = machine.StartState;
         }
 
         public State<KeyTypeTransition> WalkMachine(KeyTypeTransition key)
         {
             try
             {
-                m_currentState = m_currentState.NextState[key];
-                return m_currentState;
+                mCurrentState = mCurrentState.NextState[key];
             }
             catch (KeyNotFoundException)
             {
-                return null;            }
+                mCurrentState = mStartState;
+            }
+            return mCurrentState;
         }
 
         public State<KeyTypeTransition> WalkMachine(KeyTypeTransition[] keys)
@@ -31,14 +45,14 @@ namespace MacroKey
             {
                 foreach (var key in keys)
                 {
-                    m_currentState = m_currentState.NextState[key];
+                    mCurrentState = mCurrentState.NextState[key];
                 }
-                return m_currentState;
             }
             catch (KeyNotFoundException)
             {
-                return null;
+                mCurrentState = mStartState;
             }
+            return mCurrentState;
         }
     }
 }

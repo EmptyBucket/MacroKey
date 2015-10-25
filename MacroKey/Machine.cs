@@ -3,15 +3,20 @@
     class Machine<KeyTypeTransition>
     {
         public State<KeyTypeTransition> StartState { get; }
-
+             
         public Machine(State<KeyTypeTransition> startState)
         {
             StartState = startState;
         }
 
-        public void AddBranch(State<KeyTypeTransition> state)
+        public void AddBranchToStart(State<KeyTypeTransition> state)
         {
             AddMachineState(state, StartState);
+        }
+
+        public void AddBranchToCurrent(State<KeyTypeTransition> state, State<KeyTypeTransition> currentState)
+        {
+            AddMachineState(state, currentState);
         }
 
         private void AddMachineState(State<KeyTypeTransition> state, State<KeyTypeTransition> oldState)

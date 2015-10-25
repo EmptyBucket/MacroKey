@@ -57,7 +57,7 @@ namespace MacroKey
                     lParam, typeof(KeyHookedStruct));
                 int keyboardMessage = (int)wParam;
 
-                return HookedKey(new KeyHookEventArgs() { VirtualKeyCode = keyStruct.VirtualKeyCode, ScanCode = keyStruct.ScanCode, Flags = keyStruct.Flags, KeyboardMassage = keyboardMessage })
+                return OnHookedKey(new KeyHookEventArgs() { VirtualKeyCode = keyStruct.VirtualKeyCode, ScanCode = keyStruct.ScanCode, Flags = keyStruct.Flags, KeyboardMassage = keyboardMessage })
                     ? CallNextHookEx(m_hHook, nCode, wParam, lParam)
                     : new IntPtr(1);
             }
@@ -65,6 +65,14 @@ namespace MacroKey
             {
                 return CallNextHookEx(m_hHook, nCode, wParam, lParam);
             }
+        }
+
+        protected virtual bool OnHookedKey(KeyHookEventArgs e)
+        {
+            var handler = HookedKey;
+            if (handler != null)
+                return handler(e);
+            else return true;
         }
 
         private IntPtr m_hHook;

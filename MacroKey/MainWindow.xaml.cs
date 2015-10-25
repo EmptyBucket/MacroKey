@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,16 +10,18 @@ namespace MacroKey
 {
     public partial class MainWindow : Window
     {
-        private static ObservableCollection<KeyData> m_sequenceCollection = new ObservableCollection<KeyData>();
-        private static ObservableCollection<KeyData> m_macroCollection = new ObservableCollection<KeyData>();
-        private static ObservableCollection<Macros> m_macrosList = new ObservableCollection<Macros>();
 
-        private static Machine<KeyData> mMachine;
-        private static short mKeyExecuteGUI;
-        private static short mKeyMacrosMode;
-        private HookerKeys mHookerKey;
-        private SenderKeyInput mSenderKey;
-        private MachineWalker<KeyData> mMachineWalker;
+        private static Machine<KeyData> mMachine = new Machine<KeyData>(new State<KeyData>());
+        private static HookerKeys mHookerKey = new HookerKeys();
+        private static SenderKeyInput mSenderKey = new SenderKeyInput();
+
+        private MachineWalker<KeyData> mMachineWalker = new MachineWalker<KeyData>(mMachine);
+
+        private SequenceReader mHotkeyExecuteGUI = new SequenceReader(mHookerKey);
+        private SequenceReader mHotkeyMacrosMode = new SequenceReader(mHookerKey);
+        private SequenceReader mSequenceCollection = new SequenceReader(mHookerKey);
+        private SequenceReader mMacroCollection = new SequenceReader(mHookerKey);
+        private ObservableCollection<Macros> mMacrosCollection = new ObservableCollection<Macros>();
 
         public MainWindow()
         {
@@ -26,103 +29,73 @@ namespace MacroKey
             Loaded += Page_Loaded;
         }
 
-        public bool m_hookSequence(HookerKeys.KeyHookEventArgs e)
-        {
-            KeyData keyData = new KeyData(e.VirtualKeyCode, e.ScanCode, e.Flags, e.KeyboardMassage);
-            State <KeyData> state = mMachineWalker.WalkMachine(keyData);
-            if (state != null)
-            {
-                if (state.ActionState != null)
-                {
-                    state.ActionState(state.ActionArg);
-                    mHookerKey.HookedKey -= m_hookSequence;
-                }
-                if (e.VirtualKeyCode == mKeyMacrosMode)
-                    mHookerKey.HookedKey -= m_hookSequence;
-            }
-            else
-                mHookerKey.HookedKey -= m_hookSequence;
-            return true;
-        }
-
         void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            mMachine = new Machine<KeyData>(new State<KeyData>());
-            mHookerKey = new HookerKeys();
-            mSenderKey = new SenderKeyInput();
             mHookerKey.SetHook();
 
-            listSequenceKey.DataContext = m_sequenceCollection;
-            listMacro.DataContext = m_macroCollection;
-            listMacros.DataContext = m_macrosList;
-
-            bool goToHookSequence = false;
-            mHookerKey.HookedKey += (args) =>
+            MachineWalker<KeyData> machineWalker = new MachineWalker<KeyData>(mMachine);
+            mHookerKey.HookedKey += (obj) =>
             {
-                if (args.VirtualKeyCode == mKeyExecuteGUI && args.KeyboardMassage == (int)KeyData.KeyboardMessage.WM_KEYDOWM)
-                    if (IsVisible)
-                        Visibility = Visibility.Collapsed;
-                    else
-                    {
-                        Visibility = Visibility.Visible;
-                        Activate();
-                    }
-                if(goToHookSequence)
-                {
-                    goToHookSequence = false;
-                    mMachineWalker = new MachineWalker<KeyData>(mMachine);
-                    mHookerKey.HookedKey += new HookerKeys.KeyHookHandler(m_hookSequence);
-                }
-                if (args.VirtualKeyCode == mKeyMacrosMode && args.KeyboardMassage == (int)KeyData.KeyboardMessage.WM_KEYDOWM)
-                    goToHookSequence = true;
-                
+                State<KeyData> state = machineWalker.WalkMachine(new KeyData(obj.VirtualKeyCode, obj.ScanCode, obj.Flags, obj.KeyboardMassage));
+                if (state.ActionState != null)
+                    state.ActionState(state.ActionArg);
+
                 return true;
             };
+
+            listSequenceKey.DataContext = mSequenceCollection;
+            listMacroKey.DataContext = mMacroCollection;
+            listMacros.DataContext = mMacrosCollection;
+
+            executeGUIHotkeyBox.DataContext = mHotkeyExecuteGUI;
+            macrosModHotkeyBox.DataContext = mHotkeyMacrosMode;
+
+            EventManager.RegisterClassHandler(typeof(UIElement), AccessKeyManager.AccessKeyPressedEvent, new AccessKeyPressedEventHandler(OnAccessKeyPressed));
         }
 
-        private bool m_recordSequence(HookerKeys.KeyHookEventArgs e)
+        private static void OnAccessKeyPressed(object sender, AccessKeyPressedEventArgs e)
         {
-            m_sequenceCollection.Add(new KeyData(e.VirtualKeyCode, e.ScanCode, e.Flags, e.KeyboardMassage));
-            return true;
-        }
-
-        private bool m_recordMacro(HookerKeys.KeyHookEventArgs e)
-        {
-            m_macroCollection.Add(new KeyData(e.VirtualKeyCode, e.ScanCode, e.Flags, e.KeyboardMassage));
-            return true;
+            if (!e.Handled && e.Scope == null && (e.Target == null || e.Target.GetType() == typeof(Label)))
+            {
+                if ((Keyboard.Modifiers & ModifierKeys.Alt) != ModifierKeys.Alt)
+                {
+                    e.Target = null;
+                    e.Handled = true;
+                }
+            }
         }
 
         private void StartRecordSequence_Click(object sender, RoutedEventArgs e)
         {
             Button buttonSender = (Button)sender;
-            if (buttonSender.Content.ToString() == "Record")
+            if (buttonSender.Content.ToString() == "Record _Sequence")
             {
-                mHookerKey.HookedKey += new HookerKeys.KeyHookHandler(m_recordSequence);
-                buttonSender.Content = "Stop";
-                recordMacroButton.Content = "Record";
-                mHookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordMacro);
+                mSequenceCollection.StartRecord();
+                buttonSender.Content = "Stop _Sequence";
+                recordMacroButton.Content = "Record _Macro";
+                mMacroCollection.StopRecord();
             }
             else
             {
-                mHookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordSequence);
-                buttonSender.Content = "Record";
+                mSequenceCollection.StopRecord();
+                buttonSender.Content = "Record _Sequence";
             }
         }
 
         private void StartRecordMacros_Click(object sender, RoutedEventArgs e)
         {
             Button buttonSender = (Button)sender;
-            if (buttonSender.Content.ToString() == "Record")
+            if (buttonSender.Content.ToString() == "Record _Macro")
             {
-                mHookerKey.HookedKey += new HookerKeys.KeyHookHandler(m_recordMacro);
-                buttonSender.Content = "Stop";
-                recordSequenceButton.Content = "Record";
-                mHookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordSequence);
+                mMacroCollection.StartRecord();
+                buttonSender.Content = "Stop _Macro";
+                recordSequenceButton.Content = "Record _Sequence";
+                mSequenceCollection.StopRecord();
             }
             else
             {
-                mHookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordMacro);
-                buttonSender.Content = "Record";
+                mMacroCollection.StopRecord();
+                buttonSender.Content = "Record _Macro";
             }
         }
 
@@ -133,97 +106,121 @@ namespace MacroKey
 
         private void CreateMacros_Click(object sender, RoutedEventArgs e)
         {
-            if(m_sequenceCollection.Count == 0)
+            recordSequenceButton.Content = "Record _Sequence";
+            mSequenceCollection.StopRecord();
+            recordMacroButton.Content = "Record _Macro";
+            mMacroCollection.StopRecord();
+
+            if (mSequenceCollection.ReadSequence.Count == 0)
             {
                 MessageBox.Show("Sequence is empty", "Error", MessageBoxButton.OK);
                 return;
             }
-            if(m_macroCollection.Count == 0)
+            if(mMacroCollection.ReadSequence.Count == 0)
             {
                 MessageBox.Show("Macros is empty", "Error", MessageBoxButton.OK);
                 return;
             }
 
-            State<KeyData> currentState = new State<KeyData>();
-            State<KeyData> saveStartState = currentState;
-            foreach (var item in m_sequenceCollection)
+            State<KeyData> startState = new State<KeyData>();
+            State<KeyData> endState = State<KeyData>.CreateBranch(mSequenceCollection.ReadSequence, startState);
+            endState.ActionArg = new List<KeyData>(mMacroCollection.ReadSequence);
+            endState.ActionState = obj => mSenderKey.SendKeyPress((IEnumerable<KeyData>)obj);
+            mMachine.AddBranchToCurrent(startState, mMachineWalker.StartState);
+
+            mMacrosCollection.Add(new Macros(textBoxMacrosName.Text, mSequenceCollection.ReadSequence, mMacroCollection.ReadSequence));
+            textBoxMacrosName.Clear();
+            mSequenceCollection.Clear();
+            mMacroCollection.Clear();
+        }
+
+        private void HotkeyBoxExecuteGUI_GotFocus(object sender, RoutedEventArgs e)
+        {
+            recordSequenceButton.Content = "Record _Sequence";
+            mSequenceCollection.StopRecord();
+            recordMacroButton.Content = "Record _Macro";
+            mMacroCollection.StopRecord();
+
+            FrameworkElement element = (FrameworkElement)sender;
+            SequenceReader reader = (SequenceReader)element.DataContext;
+            reader.Clear();
+            reader.StartRecord();
+        }
+
+        private void HotkeyBoxExecuteGUI_LostFocus(object sender, RoutedEventArgs e)
+        {
+            FrameworkElement element = (FrameworkElement)sender;
+            SequenceReader reader = (SequenceReader)element.DataContext;
+            reader.StopRecord();
+
+            State<KeyData> startState = new State<KeyData>();
+            State<KeyData> endState = State<KeyData>.CreateBranch(reader.ReadSequence, startState);
+            endState.ActionState = obj => 
             {
-                State<KeyData> newState = new State<KeyData>();
-                currentState.AddNextState(item, newState);
-                currentState = newState;
-            }
-            currentState.ActionArg = new List<KeyData>(m_macroCollection);
-            currentState.ActionState = obj => mSenderKey.SendKeyPress((IEnumerable<KeyData>)obj);
-            mMachine.AddBranch(saveStartState);
-
-            m_macrosList.Add(new Macros(new List<KeyData>(m_sequenceCollection), new List<KeyData>(m_macroCollection)));
-            m_sequenceCollection.Clear();
-            m_macroCollection.Clear();
-        }
-
-        private void GUIHotkeyBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            mKeyExecuteGUI = (short)KeyInterop.VirtualKeyFromKey(e.Key);
-            TextBox tb = (TextBox)sender;
-            tb.Text = e.Key.ToString();
-            tb.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-        }
-
-        private void macrosModeBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            mKeyMacrosMode = (short)KeyInterop.VirtualKeyFromKey(e.Key);
-            TextBox tb = (TextBox)sender;
-            tb.Text = e.Key.ToString();
-            tb.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-        }
-
-        private void Element_GotFocus(object sender, RoutedEventArgs e)
-        {
-            recordSequenceButton.Content = "Record";
-            mHookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordSequence);
-            recordMacroButton.Content = "Record";
-            mHookerKey.HookedKey -= new HookerKeys.KeyHookHandler(m_recordMacro);
-        }
-
-        private childItem FindVisualChild<childItem>(DependencyObject obj)
-        where childItem : DependencyObject
-        {
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
-            {
-                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
-                if (child != null && child is childItem)
-                    return (childItem)child;
-                else
+                if (Visibility == Visibility.Collapsed)
                 {
-                    childItem childOfChild = FindVisualChild<childItem>(child);
-                    if (childOfChild != null)
-                        return childOfChild;
+                    Visibility = Visibility.Visible;
+                    Focus();
                 }
-            }
-            return null;
-        }
-
-        private void ListElement_GotFocus(object sender, RoutedEventArgs e)
-        {
-            ListBoxItem item = (ListBoxItem)sender;
-            ContentPresenter contentPresenter = FindVisualChild<ContentPresenter>(item);
-            DataTemplate dataTemplate = contentPresenter.ContentTemplate;
-            StackPanel stackPanel = (StackPanel)dataTemplate.FindName("listSequenceKey", contentPresenter);
-            Button removeElementButton = new Button();
-            removeElementButton.Click += (send, arg) =>
-            {
-                Panel parent = (Panel)VisualTreeHelper.GetParent(stackPanel);
-                parent.Children.Remove(stackPanel);
+                else
+                    Visibility = Visibility.Collapsed;
             };
-            stackPanel.Children.Add(removeElementButton);
+            mMachine.AddBranchToStart(startState);
         }
 
-        private void ListElement_LostFocus(object sender, RoutedEventArgs e)
+        private void HotkeyBoxMacrosMode_GotFocus(object sender, RoutedEventArgs e)
         {
-            StackPanel stackPanel = (StackPanel)sender;
-            foreach (UIElement item in stackPanel.Children)
-                if (item.GetType() == typeof(Button))
-                    stackPanel.Children.Remove(item);
+            recordSequenceButton.Content = "Record _Sequence";
+            mSequenceCollection.StopRecord();
+            recordMacroButton.Content = "Record _Macro";
+            mMacroCollection.StopRecord();
+
+            FrameworkElement element = (FrameworkElement)sender;
+            SequenceReader reader = (SequenceReader)element.DataContext;
+            reader.Clear();
+            reader.StartRecord();
+        }
+
+        private void HotkeyBoxMacrosMode_LostFocus(object sender, RoutedEventArgs e)
+        {
+            FrameworkElement element = (FrameworkElement)sender;
+            SequenceReader reader = (SequenceReader)element.DataContext;
+            reader.StopRecord();
+
+            State<KeyData> startState = new State<KeyData>();
+            State<KeyData> endState = State<KeyData>.CreateBranch(reader.ReadSequence, startState);
+            mMachine.AddBranchToStart(startState);
+
+            mMachineWalker.StartState = endState;
+        }
+
+        public static T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+            if (parentObject == null) return null;
+            T parent = parentObject as T;
+            if (parent != null)
+                return parent;
+            else
+                return FindParent<T>(parentObject);
+        }
+
+        private void DeleteRowButton_Click(object sender, RoutedEventArgs e)
+        {
+            FrameworkElement element = (FrameworkElement)sender;
+            ListView listView = FindParent<ListView>(element);
+            object listViewDataContext = listView.DataContext;
+            Type typeDataContext = listViewDataContext.GetType();
+            typeDataContext.GetMethod("Remove").Invoke(listViewDataContext, new object[] { element.DataContext });
+        }
+
+        private void CleanRowsButton_Click(object sender, RoutedEventArgs e)
+        {
+            FrameworkElement element = (FrameworkElement)sender;
+            ListView listView = FindParent<ListView>(element);
+            object listViewDataContext = listView.DataContext;
+            Type typeDataContext = listViewDataContext.GetType();
+            typeDataContext.GetMethod("Clear").Invoke(listViewDataContext, new object[] { });
         }
     }
 }

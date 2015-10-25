@@ -1,0 +1,35 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:MacroKey.Themes">
+  <ControlTemplate x:Key="ButtonTemplate" TargetType="Button">
+    <Border CornerRadius="5" Name="border" Background="White">
+      <ContentPresenter RecognizesAccessKey="True" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Border>
+    <ControlTemplate.Triggers>
+      <Trigger Property="IsPressed" Value="True">
+        <Setter TargetName="border" Property="Background" Value="Gray"/>
+      </Trigger>
+      <Trigger Property="IsKeyboardFocused" Value="True">
+        <Setter TargetName="border" Property="BorderBrush" Value="Blue"/>
+        <Setter TargetName="border" Property="BorderThickness" Value="1"/>
+      </Trigger>
+      <EventTrigger RoutedEvent="MouseEnter">
+        <BeginStoryboard>
+          <Storyboard>
+            <ColorAnimation Storyboard.TargetName="border" Duration="0:0:0.5" Storyboard.TargetProperty="Background.(SolidColorBrush.Color)" To="LightGray"/>
+          </Storyboard>
+        </BeginStoryboard>
+      </EventTrigger>
+      <EventTrigger RoutedEvent="MouseLeave">
+        <BeginStoryboard>
+          <Storyboard>
+            <ColorAnimation Storyboard.TargetName="border" Duration="0:0:0.5" Storyboard.TargetProperty="Background.(SolidColorBrush.Color)"/>
+          </Storyboard>
+        </BeginStoryboard>
+      </EventTrigger>
+    </ControlTemplate.Triggers>
+  </ControlTemplate>
+  <Style TargetType="{x:Type Button}">
+    <Setter Property="Template" Value="{StaticResource ButtonTemplate}"/>
+  </Style>
+</ResourceDictionary>

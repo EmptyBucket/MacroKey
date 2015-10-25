@@ -19,5 +19,18 @@ namespace MacroKey
         {
             NextState.Add(value, state);
         }
+
+        public static State<KeyTypeTransition> CreateBranch(IEnumerable<KeyTypeTransition> keys, State<KeyTypeTransition> currentState = null)
+        {
+            if (currentState == null)
+                currentState = new State<KeyTypeTransition>();
+            foreach (var item in keys)
+            {
+                State<KeyTypeTransition> newState = new State<KeyTypeTransition>();
+                currentState.AddNextState(item, newState);
+                currentState = newState;
+            }
+            return currentState;
+        }
     }
 }

@@ -7,136 +7,157 @@
         mc:Ignorable="d"
         WindowStyle="None"
         AllowsTransparency="True"
-        Title="MainWindow" Height="350" Width="525" Background="Transparent">
-    <Grid AllowDrop="True" Background="Transparent" MouseDown="Grid_MouseDown" Opacity="0.7">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="2*"/>
-        </Grid.ColumnDefinitions>
-        <Border BorderThickness="1" Margin="2" CornerRadius="10" Grid.Column="0">
-            <Border.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF37D637"/>
-                    <GradientStop Color="#FF32C932" Offset="1"/>
-                    <GradientStop Color="#FFC1CF34" Offset="0.5"/>
-                    <GradientStop Color="#FF7BBF36" Offset="0.75"/>
-                    <GradientStop Color="#FF7BBF36" Offset="0.25"/>
-                </LinearGradientBrush>
-            </Border.Background>
-            <Grid>
-                <Grid.RowDefinitions>
+        Title="MainWindow" Height="350" Width="625" Background="Transparent">
+  <Window.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Themes/ButtonTemplate.xaml"/>
+        <ResourceDictionary Source="/Themes/ButtonIconDeleteTemplate.xaml"/>
+        <ResourceDictionary Source="/Themes/ButtonIconCleanTemplate.xaml"/>
+        <ResourceDictionary Source="/Themes/ListViewTemplate.xaml"/>
+        <ResourceDictionary Source="/Themes/BorderTemplate.xaml"/>
+        <ResourceDictionary Source="/Themes/TextBlockHeaderTemplate.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Window.Resources>
+  <Grid AllowDrop="True" MouseDown="Grid_MouseDown">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="4*"/>
+      <ColumnDefinition Width="6*"/>
+      <ColumnDefinition Width="4*"/>
+    </Grid.ColumnDefinitions>
+    <Border Grid.Column="0">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="1*"/>
+          <RowDefinition Height="9*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Style="{StaticResource TextBlockHeaderStyle}" Text="Sequence"/>
+        <ListView x:Name="listSequenceKey" Grid.Row="2" ItemsSource="{Binding ReadSequence}">
+          <ListView.View>
+            <GridView>
+              <GridView.Columns>
+                <GridViewColumn Header="Key" DisplayMemberBinding="{Binding KeyValue}"/>
+                <GridViewColumn Header="State" DisplayMemberBinding="{Binding KeyMessage}"/>
+                <GridViewColumn>
+                  <GridViewColumn.Header>
+                    <Border Background="LightGreen" BorderBrush="Green" BorderThickness="1">
+                      <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsButton_Click"/>
+                    </Border>
+                  </GridViewColumn.Header>
+                  <GridViewColumn.CellTemplate>
+                    <DataTemplate>
+                      <Button Style="{StaticResource ButtonIconDeleteStyle}" Click="DeleteRowButton_Click"/>
+                    </DataTemplate>
+                  </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+              </GridView.Columns>
+            </GridView>
+          </ListView.View>
+        </ListView>
+        <Button x:Name="recordSequenceButton" Content="Record _Sequence" Margin="5" Grid.Row="1" Click="StartRecordSequence_Click"/>
+      </Grid>
+    </Border>
+    <Border Grid.Column="2">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="1*"/>
+          <RowDefinition Height="9*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Style="{StaticResource TextBlockHeaderStyle}" Grid.Row="0" Text="Macros"/>
+        <ListView x:Name="listMacroKey" Grid.Row="2" ItemsSource="{Binding ReadSequence}">
+          <ListView.View>
+            <GridView>
+              <GridView.Columns>
+                <GridViewColumn Header="Key" DisplayMemberBinding="{Binding KeyValue}"/>
+                  <GridViewColumn Header="State" DisplayMemberBinding="{Binding KeyMessage}"/>
+                <GridViewColumn>
+                  <GridViewColumn.Header>
+                    <Border Background="LightGreen" BorderBrush="Green" BorderThickness="1">
+                      <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsButton_Click"/>
+                    </Border>
+                  </GridViewColumn.Header>
+                  <GridViewColumn.CellTemplate>
+                    <DataTemplate>
+                      <Button Style="{StaticResource ButtonIconDeleteStyle}" Click="DeleteRowButton_Click"/>
+                    </DataTemplate>
+                  </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+              </GridView.Columns>
+            </GridView>
+          </ListView.View>
+        </ListView>
+        <Button x:Name="recordMacroButton" Content="Record _Macro" Grid.Row="1" Click="StartRecordMacros_Click" Margin="5"/>
+      </Grid>
+    </Border>
+    <Border Grid.Column="1">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="1*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="6*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Style="{StaticResource TextBlockHeaderStyle}" Grid.Row="0" Text="MacroKey"/>
+        <StackPanel Grid.Row="1" Margin="5">
+          <WrapPanel>
+            <TextBlock Text="Execute GUI Hotkey" Margin="2"/>
+            <TextBox x:Name="executeGUIHotkeyBox" BorderBrush="#FF707070" Margin="12,2,2,2" Background="Transparent" LostFocus="HotkeyBoxExecuteGUI_LostFocus" GotFocus="HotkeyBoxExecuteGUI_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ReadSequence, Mode=OneWay}"/>
+          </WrapPanel>
+          <WrapPanel>
+            <TextBlock Text="Macros Mode Hotkey" Margin="2"/>
+            <TextBox x:Name="macrosModHotkeyBox" BorderBrush="#FF707070" Margin="2,2,2,2" Background="Transparent" LostFocus="HotkeyBoxMacrosMode_LostFocus" GotFocus="HotkeyBoxMacrosMode_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ReadSequence, Mode=OneWay}"/>
+          </WrapPanel>
+        </StackPanel>
+        <Button Content="Create Macros" Grid.Row="2" Click="CreateMacros_Click" Margin="5"/>
+        <TextBlock Text="Macros List" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="3" FontWeight="Bold" FontSize="16"/>
+        <Grid Grid.Row="4" Margin="5,2,5,2">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="Enter macro name:"/>
+          <TextBox Margin="5,0,0,0" x:Name="textBoxMacrosName" Grid.Column="1" Background="Transparent" BorderThickness="0">
+            <TextBox.Template>
+              <ControlTemplate>
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="15*"/>
                     <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="8*"/>
-                </Grid.RowDefinitions>
-                <TextBlock x:Name="textBlock" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Text="Sequence" FontWeight="Bold" TextDecorations="{x:Null}" FontSize="16"/>
-                <ListBox x:Name="listSequenceKey" Grid.Row="2" Margin="5" ItemsSource="{Binding}" BorderBrush="{x:Null}" Background="#FF8BD334">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding KeyValue}" />
-                                <TextBlock Text="{Binding KeyMessage}" Margin="5,0,0,0"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="{x:Type ListBoxItem}">
-                            <EventSetter Event="GotFocus" Handler="ListElement_GotFocus"/>
-                            <EventSetter Event="LostFocus" Handler="ListElement_LostFocus"/>
-                        </Style>
-                    </ListBox.ItemContainerStyle>
-                </ListBox>
-                <Button x:Name="recordSequenceButton" Content="Record" Margin="5" Grid.Row="1" Click="StartRecordSequence_Click" Background="#FF8BD334"/>
-            </Grid>
-        </Border>
-        <Border BorderThickness="1" Margin="2" CornerRadius="10" Grid.Column="2">
-            <Border.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF37D637"/>
-                    <GradientStop Color="#FF32C932" Offset="1"/>
-                    <GradientStop Color="#FFC1CF34" Offset="0.5"/>
-                    <GradientStop Color="#FF7BBF36" Offset="0.75"/>
-                    <GradientStop Color="#FF7BBF36" Offset="0.25"/>
-                </LinearGradientBrush>
-            </Border.Background>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="9*"/>
-                </Grid.RowDefinitions>
-                <TextBlock x:Name="textBlock1" Grid.Row="0" Text="Macros" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="16"/>
-                <ListBox x:Name="listMacro" Grid.Row="2" Margin="5" BorderBrush="{x:Null}" Background="#FF8BD334" ItemsSource="{Binding}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding KeyValue}"/>
-                                <TextBlock Text="{Binding KeyMessage}" Margin="5,0,0,0"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-                <Button x:Name="recordMacroButton" Content="Record" Margin="5" Grid.Row="1" Background="#FF8BD334" Click="StartRecordMacros_Click"/>
-            </Grid>
-        </Border>
-        <Border BorderThickness="1" Margin="2" CornerRadius="10" Grid.Column="1">
-            <Border.Background>
-                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                    <GradientStop Color="#FF37D637"/>
-                    <GradientStop Color="#FF32C932" Offset="1"/>
-                    <GradientStop Color="#FFC1CF34" Offset="0.5"/>
-                    <GradientStop Color="#FF7BBF36" Offset="0.75"/>
-                    <GradientStop Color="#FF7BBF36" Offset="0.25"/>
-                </LinearGradientBrush>
-            </Border.Background>
-            <Grid Height="330" VerticalAlignment="Bottom">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="9*"/>
-                </Grid.RowDefinitions>
-                <TextBlock x:Name="textBlock2" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="MacroKey" FontSize="21.333" FontWeight="Bold"/>
-                <Grid Grid.Row="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                    </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" Margin="10">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*" />
-                            <RowDefinition Height="1*" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="1*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox x:Name="GUIHotkeyBox"  BorderBrush="#FF707070" Background="#FF8BD334" Grid.Row="0" Grid.Column="1" KeyDown="GUIHotkeyBox_KeyDown" GotFocus="Element_GotFocus" IsReadOnly="True"/>
-                        <TextBox x:Name="macrosModeBox" BorderBrush="#FF707070" Background="#FF8BD334" Grid.Row="1" Grid.Column="1" KeyDown="macrosModeBox_KeyDown" GotFocus="Element_GotFocus" IsReadOnly="True"/>
-                        <TextBlock x:Name="textBlock4" Text="Execute GUI Hotkey" Grid.Row="0" Grid.Column="0"/>
-                        <TextBlock x:Name="textBlock5" Text="Macros Mode Hotkey" Grid.Row="1" Grid.Column="0"/>
-                    </Grid>
-                    <Button x:Name="button2" Content="Create Macros" Grid.Row="1" Background="#FF8BD334" Margin="10" Click="CreateMacros_Click" GotFocus="Element_GotFocus"/>
-                    <Grid Grid.Row="2" Grid.RowSpan="3" >
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*"/>
-                            <RowDefinition Height="8*"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock x:Name="textBlock3" Text="Macros List" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Row="0"/>
-                        <ListBox x:Name="listMacros" Background="#FF8BD334" Grid.Row="1" ItemsSource="{Binding}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding}"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Grid>
+                  </Grid.RowDefinitions>
+                  <ScrollViewer Margin="0" x:Name="PART_ContentHost" Grid.Row="0"/>
+                  <Separator Grid.Row="1" Background="Black"/>
                 </Grid>
-            </Grid>
-        </Border>
-    </Grid>
+              </ControlTemplate>
+            </TextBox.Template>
+          </TextBox>
+        </Grid>
+        <ListView x:Name="listMacros" Grid.Row="5" ItemsSource="{Binding}">
+          <ListView.View>
+            <GridView>
+              <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
+              <GridViewColumn Header="Sequence" DisplayMemberBinding="{Binding Sequence}"/>
+              <GridViewColumn Header="Macro" DisplayMemberBinding="{Binding Macro}"/>
+              <GridViewColumn>
+                <GridViewColumn.Header>
+                  <Border Background="LightGreen" BorderBrush="Green" BorderThickness="1">
+                    <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsButton_Click"/>
+                  </Border>
+                </GridViewColumn.Header>
+                <GridViewColumn.CellTemplate>
+                  <DataTemplate>
+                    <Button Style="{StaticResource ButtonIconDeleteStyle}" Click="DeleteRowButton_Click"/>
+                  </DataTemplate>
+                </GridViewColumn.CellTemplate>
+              </GridViewColumn>
+            </GridView>
+          </ListView.View>
+        </ListView>
+      </Grid>
+    </Border>
+  </Grid>
 </Window>

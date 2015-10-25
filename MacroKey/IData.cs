@@ -1,6 +1,0 @@
-﻿namespace MacroKey
-{
-    interface IData
-    {
-    }
-}
