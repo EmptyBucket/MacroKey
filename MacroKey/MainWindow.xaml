@@ -17,10 +17,14 @@
         <ResourceDictionary Source="/Themes/ListViewTemplate.xaml"/>
         <ResourceDictionary Source="/Themes/BorderTemplate.xaml"/>
         <ResourceDictionary Source="/Themes/TextBlockHeaderTemplate.xaml"/>
+        <ResourceDictionary Source="/Themes/TextBoxLineTemplate.xaml"/>
+        <ResourceDictionary>
+          <local:KeyDataCollectionToStringConverter x:Key="keyDataCollectionToStringConverter"/>
+        </ResourceDictionary>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Window.Resources>
-  <Grid AllowDrop="True" MouseDown="Grid_MouseDown">
+  <Grid AllowDrop="True" MouseLeftButtonDown="Grid_MouseDown">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="4*"/>
       <ColumnDefinition Width="6*"/>
@@ -34,7 +38,7 @@
           <RowDefinition Height="9*"/>
         </Grid.RowDefinitions>
         <TextBlock Style="{StaticResource TextBlockHeaderStyle}" Text="Sequence"/>
-        <ListView x:Name="listSequenceKey" Grid.Row="2" ItemsSource="{Binding ReadSequence}">
+        <ListView x:Name="listSequenceKey" Grid.Row="2" ItemsSource="{Binding}">
           <ListView.View>
             <GridView>
               <GridView.Columns>
@@ -42,13 +46,11 @@
                 <GridViewColumn Header="State" DisplayMemberBinding="{Binding KeyMessage}"/>
                 <GridViewColumn>
                   <GridViewColumn.Header>
-                    <Border Background="LightGreen" BorderBrush="Green" BorderThickness="1">
-                      <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsButton_Click"/>
-                    </Border>
+                    <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsSequenceButton_Click"/>
                   </GridViewColumn.Header>
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
-                      <Button Style="{StaticResource ButtonIconDeleteStyle}" Click="DeleteRowButton_Click"/>
+                      <Button Style="{StaticResource ButtonIconDeleteStyle}" Click="DeleteRowSequenceButton_Click"/>
                     </DataTemplate>
                   </GridViewColumn.CellTemplate>
                 </GridViewColumn>
@@ -56,7 +58,7 @@
             </GridView>
           </ListView.View>
         </ListView>
-        <Button x:Name="recordSequenceButton" Content="Record _Sequence" Margin="5" Grid.Row="1" Click="StartRecordSequence_Click"/>
+        <Button x:Name="recordSequenceButton" Content="Record Sequence" Margin="5" Grid.Row="1" Click="StartRecordSequence_Click"/>
       </Grid>
     </Border>
     <Border Grid.Column="2">
@@ -67,7 +69,7 @@
           <RowDefinition Height="9*"/>
         </Grid.RowDefinitions>
         <TextBlock Style="{StaticResource TextBlockHeaderStyle}" Grid.Row="0" Text="Macros"/>
-        <ListView x:Name="listMacroKey" Grid.Row="2" ItemsSource="{Binding ReadSequence}">
+        <ListView x:Name="listMacroKey" Grid.Row="2" ItemsSource="{Binding}">
           <ListView.View>
             <GridView>
               <GridView.Columns>
@@ -75,13 +77,11 @@
                   <GridViewColumn Header="State" DisplayMemberBinding="{Binding KeyMessage}"/>
                 <GridViewColumn>
                   <GridViewColumn.Header>
-                    <Border Background="LightGreen" BorderBrush="Green" BorderThickness="1">
-                      <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsButton_Click"/>
-                    </Border>
+                    <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsSequenceButton_Click"/>
                   </GridViewColumn.Header>
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
-                      <Button Style="{StaticResource ButtonIconDeleteStyle}" Click="DeleteRowButton_Click"/>
+                      <Button Style="{StaticResource ButtonIconDeleteStyle}" Click="DeleteRowSequenceButton_Click"/>
                     </DataTemplate>
                   </GridViewColumn.CellTemplate>
                 </GridViewColumn>
@@ -89,7 +89,7 @@
             </GridView>
           </ListView.View>
         </ListView>
-        <Button x:Name="recordMacroButton" Content="Record _Macro" Grid.Row="1" Click="StartRecordMacros_Click" Margin="5"/>
+        <Button x:Name="recordMacroButton" Content="Record Sequence" Grid.Row="1" Click="StartRecordSequence_Click" Margin="5"/>
       </Grid>
     </Border>
     <Border Grid.Column="1">
@@ -106,11 +106,11 @@
         <StackPanel Grid.Row="1" Margin="5">
           <WrapPanel>
             <TextBlock Text="Execute GUI Hotkey" Margin="2"/>
-            <TextBox x:Name="executeGUIHotkeyBox" BorderBrush="#FF707070" Margin="12,2,2,2" Background="Transparent" LostFocus="HotkeyBoxExecuteGUI_LostFocus" GotFocus="HotkeyBoxExecuteGUI_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ReadSequence, Mode=OneWay}"/>
+            <TextBox x:Name="executeGUIHotkeyBox" BorderBrush="Gray" Margin="12,2,2,2" Background="Transparent" LostFocus="HotkeyBoxExecuteGUI_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ReadSequence.Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}"/>
           </WrapPanel>
           <WrapPanel>
             <TextBlock Text="Macros Mode Hotkey" Margin="2"/>
-            <TextBox x:Name="macrosModHotkeyBox" BorderBrush="#FF707070" Margin="2,2,2,2" Background="Transparent" LostFocus="HotkeyBoxMacrosMode_LostFocus" GotFocus="HotkeyBoxMacrosMode_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ReadSequence, Mode=OneWay}"/>
+            <TextBox x:Name="macrosModHotkeyBox" BorderBrush="Gray" Margin="2,2,2,2" Background="Transparent" LostFocus="HotkeyBoxMacrosMode_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ReadSequence.Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}"/>
           </WrapPanel>
         </StackPanel>
         <Button Content="Create Macros" Grid.Row="2" Click="CreateMacros_Click" Margin="5"/>
@@ -121,36 +121,21 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="Enter macro name:"/>
-          <TextBox Margin="5,0,0,0" x:Name="textBoxMacrosName" Grid.Column="1" Background="Transparent" BorderThickness="0">
-            <TextBox.Template>
-              <ControlTemplate>
-                <Grid>
-                  <Grid.RowDefinitions>
-                    <RowDefinition Height="15*"/>
-                    <RowDefinition Height="1*"/>
-                  </Grid.RowDefinitions>
-                  <ScrollViewer Margin="0" x:Name="PART_ContentHost" Grid.Row="0"/>
-                  <Separator Grid.Row="1" Background="Black"/>
-                </Grid>
-              </ControlTemplate>
-            </TextBox.Template>
-          </TextBox>
+          <TextBox Margin="5,0,5,0" x:Name="textBoxMacrosName" Grid.Column="1" Style="{StaticResource TextBoxLineStyle}" GotFocus="TextBoxMacrosName_GotFocus"/>
         </Grid>
         <ListView x:Name="listMacros" Grid.Row="5" ItemsSource="{Binding}">
           <ListView.View>
             <GridView>
               <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
-              <GridViewColumn Header="Sequence" DisplayMemberBinding="{Binding Sequence}"/>
-              <GridViewColumn Header="Macro" DisplayMemberBinding="{Binding Macro}"/>
+              <GridViewColumn Header="Sequence" DisplayMemberBinding="{Binding Sequence, Converter={StaticResource keyDataCollectionToStringConverter}}"/>
+              <GridViewColumn Header="Macro" DisplayMemberBinding="{Binding Macro, Converter={StaticResource keyDataCollectionToStringConverter}}"/>
               <GridViewColumn>
                 <GridViewColumn.Header>
-                  <Border Background="LightGreen" BorderBrush="Green" BorderThickness="1">
-                    <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsButton_Click"/>
-                  </Border>
+                  <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsMacrosButton_Click"/>
                 </GridViewColumn.Header>
                 <GridViewColumn.CellTemplate>
                   <DataTemplate>
-                    <Button Style="{StaticResource ButtonIconDeleteStyle}" Click="DeleteRowButton_Click"/>
+                    <Button Style="{StaticResource ButtonIconDeleteStyle}" Click="DeleteRowMacrosButton_Click"/>
                   </DataTemplate>
                 </GridViewColumn.CellTemplate>
               </GridViewColumn>

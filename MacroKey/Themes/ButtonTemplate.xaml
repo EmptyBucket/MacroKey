@@ -3,7 +3,7 @@
                     xmlns:local="clr-namespace:MacroKey.Themes">
   <ControlTemplate x:Key="ButtonTemplate" TargetType="Button">
     <Border CornerRadius="5" Name="border" Background="White">
-      <ContentPresenter RecognizesAccessKey="True" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Border>
     <ControlTemplate.Triggers>
       <Trigger Property="IsPressed" Value="True">

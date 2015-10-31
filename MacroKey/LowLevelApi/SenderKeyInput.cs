@@ -107,9 +107,9 @@ namespace MacroKey
                     {
                         ki = new KEYBDINPUT()
                         {
-                            wScan = item.ScanCode,
                             wVk = item.VirtualKeyCode,
-                            dwFlags = item.KeyMessage == KeyData.KeyboardMessage.WM_KEYDOWM ? KEYEVENTF.KEYUP : KEYEVENTF.NONE
+                            dwFlags = item.KeyMessage == KeyData.KeyboardMessage.WM_KEYUP ? KEYEVENTF.KEYUP : KEYEVENTF.NONE,
+                            time = item.Time
                         }
                     }
                 }).ToArray();

@@ -4,7 +4,7 @@
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="/Themes/ScrollBarTemplate.xaml"/>
   </ResourceDictionary.MergedDictionaries>
-  
+
   <ControlTemplate x:Key="ScrollViewerTemplate" TargetType="ScrollViewer">
     <Grid Background="{TemplateBinding Background}">
       <Grid.ColumnDefinitions>
@@ -35,23 +35,17 @@
     </Grid>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="ListViewTemplate" TargetType="ListView">
-    <Border CornerRadius="10" Margin="3" BorderBrush="White" BorderThickness="1">
-      <ScrollViewer Template="{StaticResource ScrollViewerTemplate}" Style="{StaticResource {x:Static GridView.GridViewScrollViewerStyleKey}}">
-        <ItemsPresenter />
-      </ScrollViewer>
-    </Border>
-  </ControlTemplate>
-
-  <ControlTemplate x:Key="GridViewHeaderTemplate" TargetType="GridViewColumnHeader">
-    <Border Background="White" CornerRadius="5" Margin="1">
-      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-    </Border>
-  </ControlTemplate>
 
   <Style TargetType="GridViewColumnHeader">
-    <!--<Setter Property="IsHitTestVisible" Value="False"/>-->
-    <Setter Property="Template" Value="{StaticResource GridViewHeaderTemplate}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="GridViewColumnHeader">
+          <Border Background="White" CornerRadius="5" Margin="1">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Style.Triggers>
       <Trigger Property="Role"
              Value="Padding">
@@ -67,6 +61,16 @@
   </Style>
 
   <Style TargetType="ListView">
-    <Setter Property="Template" Value="{StaticResource ListViewTemplate}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ListView">
+          <Border CornerRadius="10" Margin="3" BorderBrush="White" BorderThickness="1">
+            <ScrollViewer Template="{StaticResource ScrollViewerTemplate}" Style="{StaticResource {x:Static GridView.GridViewScrollViewerStyleKey}}">
+              <ItemsPresenter />
+            </ScrollViewer>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 </ResourceDictionary>

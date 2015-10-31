@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace MacroKey
@@ -8,8 +9,7 @@ namespace MacroKey
         public class KeyHookEventArgs : EventArgs
         {
             public short VirtualKeyCode { get; set; }
-            public short ScanCode { get; set; }
-            public int Flags { get; set; }
+            public int Time { get; set; }
             public int KeyboardMassage { get; set; }
         }
 
@@ -24,7 +24,7 @@ namespace MacroKey
         }
 
 
-        private LowLevelKeyboardProcDelegate m_callback;
+        private LowLevelKeyboardProcDelegate mCallback;
 
         private const int WH_KEYBOARD_LL = 13;
 
@@ -57,13 +57,22 @@ namespace MacroKey
                     lParam, typeof(KeyHookedStruct));
                 int keyboardMessage = (int)wParam;
 
-                return OnHookedKey(new KeyHookEventArgs() { VirtualKeyCode = keyStruct.VirtualKeyCode, ScanCode = keyStruct.ScanCode, Flags = keyStruct.Flags, KeyboardMassage = keyboardMessage })
-                    ? CallNextHookEx(m_hHook, nCode, wParam, lParam)
+                KeyHookEventArgs keyHookEventArgs = new KeyHookEventArgs()
+                {
+                    VirtualKeyCode = keyStruct.VirtualKeyCode,
+                    KeyboardMassage = keyboardMessage,
+                    Time = keyStruct.Time
+                };
+
+                Debug.Print(keyHookEventArgs.Time.ToString());
+
+                return OnHookedKey(keyHookEventArgs)
+                    ? CallNextHookEx(mHook, nCode, wParam, lParam)
                     : new IntPtr(1);
             }
             else
             {
-                return CallNextHookEx(m_hHook, nCode, wParam, lParam);
+                return CallNextHookEx(mHook, nCode, wParam, lParam);
             }
         }
 
@@ -72,10 +81,11 @@ namespace MacroKey
             var handler = HookedKey;
             if (handler != null)
                 return handler(e);
-            else return true;
+            else
+                return true;
         }
 
-        private IntPtr m_hHook;
+        private IntPtr mHook;
 
         public delegate bool KeyHookHandler(KeyHookEventArgs e);
 
@@ -84,20 +94,20 @@ namespace MacroKey
         public void SetHook()
         {
             //фильтр - колбэк, при перехвате события
-            m_callback = LowLevelKeyboardHookProc;
+            mCallback = LowLevelKeyboardHookProc;
             //дескриптор файла, в котором содержится процедура фильтра, в данном случае 0, чтобы получить дескриптор файла текущего процесса
             IntPtr deskriptorFileProc = GetModuleHandle(IntPtr.Zero);
             //идентификатор потока, с которым должен быть связан хук, в данном случае 0, чтобы связаться со всеми существующими потоками
             int idStream = 0;
             //перехватываем WH_KEYBOARD_LL - события ввода с клавиатуры
-            m_hHook = SetWindowsHookEx(WH_KEYBOARD_LL,
-                m_callback, deskriptorFileProc, idStream);
+            mHook = SetWindowsHookEx(WH_KEYBOARD_LL,
+                mCallback, deskriptorFileProc, idStream);
         }
 
         public void Unhook()
         {
             //удаляем процедуру фильтра с данным дескриптором из хука
-            UnhookWindowsHookEx(m_hHook);
+            UnhookWindowsHookEx(mHook);
         }
     }
 }

@@ -6,24 +6,13 @@ namespace MacroKey
     {
         private Machine<KeyTypeTransition> mMachine;
         private State<KeyTypeTransition> mStartState;
-        public State<KeyTypeTransition> StartState
-        {
-            set
-            {
-                mStartState = value;
-                mCurrentState = mStartState;
-            }
-            get
-            {
-                return mStartState;
-            }
-        }
-        private State<KeyTypeTransition> mCurrentState { get; set; }
+        private State<KeyTypeTransition> mCurrentState;
 
         public MachineWalker(Machine<KeyTypeTransition> machine)
         {
             mMachine = machine;
-            StartState = machine.StartState;
+            mStartState = machine.StartState;
+            mCurrentState = mStartState;
         }
 
         public State<KeyTypeTransition> WalkMachine(KeyTypeTransition key)

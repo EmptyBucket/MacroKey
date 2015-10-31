@@ -39,6 +39,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -70,13 +71,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="KeyData.cs" />
-    <Compile Include="MachineWalker.cs" />
+    <Compile Include="KeyData\KeyDataCollectionToStringConverter.cs" />
+    <Compile Include="KeyData\KeyData.cs" />
+    <Compile Include="Machine\MachineWalker.cs" />
     <Compile Include="Macros.cs" />
-    <Compile Include="ObservableKeyDataCollection.cs" />
-    <Compile Include="SenderKeyInput.cs" />
-    <Compile Include="SequenceReader.cs" />
-    <Compile Include="State.cs" />
+    <Compile Include="KeyData\ObservableKeyDataCollection.cs" />
+    <Compile Include="LowLevelApi\SenderKeyInput.cs" />
+    <Compile Include="LowLevelApi\HookSequenceReader.cs" />
+    <Compile Include="Machine\State.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -85,8 +87,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="HookerKeys.cs" />
-    <Compile Include="Machine.cs" />
+    <Compile Include="LowLevelApi\HookerKeys.cs" />
+    <Compile Include="Machine\Machine.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -123,11 +125,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\Test.xaml">
+    <Page Include="Themes\TextBlockHeaderTemplate.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\TextBlockHeaderTemplate.xaml">
+    <Page Include="Themes\TextBoxLineTemplate.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

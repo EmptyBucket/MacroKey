@@ -6,11 +6,15 @@
   </ResourceDictionary.MergedDictionaries>
   
   <Style x:Key="ButtonIconCleanStyle" TargetType="Button">
-    <Setter Property="Background" Value="Transparent"/>
-    <Setter Property="Foreground" Value="Red"/>
-    <Setter Property="BorderThickness" Value="0"/>
-    <Setter Property="Content" Value="{StaticResource IconClean}"/>
-    <Setter Property="Height" Value="15"/>
-    <Setter Property="Width" Value="15"/>
+    <Setter Property="Focusable" Value="False"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Border CornerRadius="10" Background="LightGreen" BorderBrush="Green" BorderThickness="1">
+            <ContentPresenter Content="{StaticResource IconClean}" Height="15" Width="15"/>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 </ResourceDictionary>
