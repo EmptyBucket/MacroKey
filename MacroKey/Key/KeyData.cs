@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace MacroKey
+namespace MacroKey.Key
 {
 
     public class KeyData : IEquatable<KeyData>

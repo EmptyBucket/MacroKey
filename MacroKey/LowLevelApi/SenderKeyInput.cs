@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using MacroKey.Key;
 
 namespace MacroKey
 {
@@ -98,6 +99,11 @@ namespace MacroKey
         }
 
         public void SendKeyPress(IEnumerable<KeyData> keyStruct)
+        {
+            SendKeyPress(keyStruct.ToArray());
+        }
+
+        public void SendKeyPress(KeyData[] keyStruct)
         {
             INPUT[] inputs = keyStruct.Select(item =>
                 new INPUT()

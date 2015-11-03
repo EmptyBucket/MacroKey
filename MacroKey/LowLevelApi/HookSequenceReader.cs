@@ -1,4 +1,6 @@
-﻿namespace MacroKey
+﻿using MacroKey.Key;
+
+namespace MacroKey
 {
     class HookSequenceReader
     {
@@ -24,6 +26,12 @@
         public void Clear()
         {
             ReadSequence.Clear();
+        }
+
+        public void StartNewRecord()
+        {
+            Clear();
+            mHooker.HookedKey += RecordSequence;
         }
 
         public void StartRecord()

@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
 
-namespace MacroKey
+namespace MacroKey.Key
 {
     [ValueConversion(typeof(IEnumerable<KeyData>), typeof(string))]
     public class KeyDataCollectionToStringConverter : IValueConverter

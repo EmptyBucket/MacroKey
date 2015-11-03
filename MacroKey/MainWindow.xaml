@@ -18,7 +18,7 @@
         <ResourceDictionary Source="/Themes/BorderTemplate.xaml"/>
         <ResourceDictionary Source="/Themes/TextBlockHeaderTemplate.xaml"/>
         <ResourceDictionary Source="/Themes/TextBoxLineTemplate.xaml"/>
-        <ResourceDictionary>
+        <ResourceDictionary xmlns:local="clr-namespace:MacroKey.Key">
           <local:KeyDataCollectionToStringConverter x:Key="keyDataCollectionToStringConverter"/>
         </ResourceDictionary>
       </ResourceDictionary.MergedDictionaries>

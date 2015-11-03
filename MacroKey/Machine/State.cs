@@ -1,66 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace MacroKey
+namespace MacroKey.Machine
 {
-    class State<KeyTypeTransition>
+    public class State<KeyTypeTransition> : IState<KeyTypeTransition>
     {
-        public Dictionary<KeyTypeTransition, State<KeyTypeTransition>> NextState { get; }
-        public Func<object, object> ActionState { get; set; }
-        public object ActionArg { get; set; }
+        public Dictionary<KeyTypeTransition, State<KeyTypeTransition>> NextState { get; private set; }
 
-        public State(Func<object, object> action = null)
+        public State()
         {
-            ActionState = action;
             NextState = new Dictionary<KeyTypeTransition, State<KeyTypeTransition>>();
         }
 
-        public void AddNextState(KeyTypeTransition value, State<KeyTypeTransition> state)
+        public virtual void SetNextState(KeyTypeTransition key, State<KeyTypeTransition> state)
         {
-            NextState.Add(value, state);
+            NextState[key] = state;
         }
 
-        public bool RemoveState(KeyTypeTransition value)
+        public virtual void SetNextState(Dictionary<KeyTypeTransition, State<KeyTypeTransition>> nextStates)
         {
-            return NextState.Remove(value);
+            NextState = nextStates;
         }
 
-        public static State<KeyTypeTransition> CreateBranch(IEnumerable<KeyTypeTransition> keys)
+        public virtual void AddNextState(State<KeyTypeTransition> addState)
         {
-            State<KeyTypeTransition> startState = new State<KeyTypeTransition>();
-            return CreateBranch(keys, startState);
+            var keys = addState.NextState.Keys.ToList();
+            foreach (var key in keys)
+                if (this.NextState.ContainsKey(key))
+                    this.NextState[key].AddNextState(addState.NextState[key]);
+                else
+                    this.NextState.Add(key, addState.NextState[key]);
         }
 
-        public static State<KeyTypeTransition> CreateBranch(IEnumerable<KeyTypeTransition> keys, State<KeyTypeTransition> startState)
+        public virtual void RemoveNextState(State<KeyTypeTransition> removeState)
         {
-            State<KeyTypeTransition> currentState = startState;
-            foreach (var item in keys)
+            if (this.NextState.Count != 0 && removeState.NextState.Count == 0)
             {
-                State<KeyTypeTransition> newState = new State<KeyTypeTransition>();
-                currentState.AddNextState(item, newState);
-                currentState = newState;
+                return;
             }
-            return currentState;
-        }
-
-        public static State<KeyTypeTransition> CreateBranch(IEnumerable<KeyTypeTransition> keys, IEnumerable<Func<object, object>> functions)
-        {
-            State<KeyTypeTransition> startState = new State<KeyTypeTransition>();
-            return CreateBranch(keys, startState, functions);
-        }
-
-        public static State<KeyTypeTransition> CreateBranch(IEnumerable<KeyTypeTransition> keys, State<KeyTypeTransition> startState, IEnumerable<Func<object, object>> functions)
-        {
-            State<KeyTypeTransition> currentState = startState;
-            var keysAndFunctions = keys.Zip(functions, (key, function) => new { Key = key, Function = function });
-            foreach (var item in keysAndFunctions)
+            foreach (var key in removeState.NextState.Keys.ToArray())
             {
-                State<KeyTypeTransition> newState = new State<KeyTypeTransition>(item.Function);
-                currentState.AddNextState(item.Key, newState);
-                currentState = newState;
+                State<KeyTypeTransition> NextRemoveState = removeState.NextState[key];
+                State<KeyTypeTransition> NextTreeState = this.NextState[key];
+                if (NextTreeState.NextState.Count == 0 && NextRemoveState.NextState.Count == 0)
+                    this.NextState.Remove(key);
+                else
+                {
+                    NextTreeState.RemoveNextState(NextRemoveState);
+                    if (NextTreeState.NextState.Count == 0)
+                        this.NextState.Remove(key);
+                }
             }
-            return currentState;
+        }
+
+        public virtual void ClearNextStates()
+        {
+            NextState.Clear();
         }
     }
 }

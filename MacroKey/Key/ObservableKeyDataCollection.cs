@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace MacroKey
+namespace MacroKey.Key
 {
     public class ObservableKeyDataCollection : INotifyCollectionChanged, INotifyPropertyChanged, IList<KeyData>
     {

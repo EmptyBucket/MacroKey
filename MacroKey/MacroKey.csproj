@@ -71,11 +71,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="KeyData\KeyDataCollectionToStringConverter.cs" />
-    <Compile Include="KeyData\KeyData.cs" />
-    <Compile Include="Machine\MachineWalker.cs" />
+    <Compile Include="Key\KeyDataCollectionToStringConverter.cs" />
+    <Compile Include="Key\KeyData.cs" />
+    <Compile Include="Machine\Branch.cs" />
+    <Compile Include="Machine\BranchNotExistTreeException.cs" />
+    <Compile Include="Machine\FunctionalState.cs" />
+    <Compile Include="Machine\IState.cs" />
+    <Compile Include="Machine\StateWalker.cs" />
+    <Compile Include="Machine\Tree.cs" />
+    <Compile Include="Machine\TreeWalker.cs" />
     <Compile Include="Macros.cs" />
-    <Compile Include="KeyData\ObservableKeyDataCollection.cs" />
+    <Compile Include="Key\ObservableKeyDataCollection.cs" />
     <Compile Include="LowLevelApi\SenderKeyInput.cs" />
     <Compile Include="LowLevelApi\HookSequenceReader.cs" />
     <Compile Include="Machine\State.cs" />
@@ -88,7 +94,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="LowLevelApi\HookerKeys.cs" />
-    <Compile Include="Machine\Machine.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

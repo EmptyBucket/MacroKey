@@ -1,21 +1,19 @@
 ﻿using System.Collections.Generic;
 
-namespace MacroKey
+namespace MacroKey.Machine
 {
-    class MachineWalker<KeyTypeTransition>
+    class StateWalker<KeyTypeTransition>
     {
-        private Machine<KeyTypeTransition> mMachine;
         private State<KeyTypeTransition> mStartState;
         private State<KeyTypeTransition> mCurrentState;
 
-        public MachineWalker(Machine<KeyTypeTransition> machine)
+        public StateWalker(State<KeyTypeTransition> startState)
         {
-            mMachine = machine;
-            mStartState = machine.StartState;
+            mStartState = startState;
             mCurrentState = mStartState;
         }
 
-        public State<KeyTypeTransition> WalkMachine(KeyTypeTransition key)
+        public State<KeyTypeTransition> WalkStates(KeyTypeTransition key)
         {
             try
             {
@@ -28,7 +26,7 @@ namespace MacroKey
             return mCurrentState;
         }
 
-        public State<KeyTypeTransition> WalkMachine(KeyTypeTransition[] keys)
+        public State<KeyTypeTransition> WalkStates(KeyTypeTransition[] keys)
         {
             try
             {
