@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using MacroKey.Key;
 
-namespace MacroKey
+namespace MacroKey.LowLevelApi
 {
     public class SenderKeyInput
     {

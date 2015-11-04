@@ -6,11 +6,14 @@ namespace MacroKey.Machine
     class Tree<KeyTypeTransition>
     {
         private List<Branch<KeyTypeTransition>> mBranchCollection = new List<Branch<KeyTypeTransition>>();
-        public State<KeyTypeTransition> StartStateTree { get; private set; } = new State<KeyTypeTransition>();
+        public State<KeyTypeTransition> StartStateTree { get; private set; }
 
-        public Tree() { }
+        public Tree(IEqualityComparer<KeyTypeTransition> equalityComparer = null)
+        {
+            StartStateTree = new State<KeyTypeTransition>(equalityComparer);
+        }
 
-        public Tree(IEnumerable<Branch<KeyTypeTransition>> branch)
+        public Tree(IEnumerable<Branch<KeyTypeTransition>> branch, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(equalityComparer)
         {
             mBranchCollection = branch.ToList();
             AdditionTree(mBranchCollection);

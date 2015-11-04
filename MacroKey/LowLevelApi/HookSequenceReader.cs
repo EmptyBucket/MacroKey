@@ -1,6 +1,6 @@
 ﻿using MacroKey.Key;
 
-namespace MacroKey
+namespace MacroKey.LowLevelApi
 {
     class HookSequenceReader
     {

@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using MacroKey.Machine;
 using MacroKey.Key;
+using MacroKey.LowLevelApi;
 
 namespace MacroKey
 {
@@ -13,8 +14,9 @@ namespace MacroKey
     {
         private static HookerKeys mHookerKey = new HookerKeys();
         private static SenderKeyInput mSenderKey = new SenderKeyInput();
+        private static KeyDataEqualityComparer mKeyDataEqualityComparer = new KeyDataEqualityComparer();
 
-        private Tree<KeyData> mTree = new Tree<KeyData>();
+        private Tree<KeyData> mTree = new Tree<KeyData>(mKeyDataEqualityComparer);
 
         private Branch<KeyData> mHotkeyExecuteGUIBranch;
         private Branch<KeyData> mHotkeyMacrosModeBranch;
@@ -45,7 +47,8 @@ namespace MacroKey
                     FunctionalState<KeyData> functionalState = (FunctionalState<KeyData>)currentState;
                     return (bool)functionalState.FunctionState(functionalState.FunctionArg);
                 }
-                return true;
+                else
+                    return true;
             };
             InitializeDataContext();
         }
@@ -109,7 +112,7 @@ namespace MacroKey
             HookSequenceReader reader = (HookSequenceReader)element.DataContext;
             reader.StopRecord();
 
-            Branch<KeyData> hotkeyExecureGUIBranch = new Branch<KeyData>(
+            mHotkeyExecuteGUIBranch = new Branch<KeyData>(
                 reader.ReadSequence,
                 obj =>
                 {
@@ -121,8 +124,9 @@ namespace MacroKey
                     else
                         Visibility = Visibility.Collapsed;
                     return true;
-                });
-            mHotkeyExecuteGUIBranch = hotkeyExecureGUIBranch;
+                },
+                mKeyDataEqualityComparer);
+            //доделать
         }
 
         private void HotkeyBoxMacrosMode_LostFocus(object sender, RoutedEventArgs e)
@@ -131,8 +135,7 @@ namespace MacroKey
             HookSequenceReader reader = (HookSequenceReader)element.DataContext;
             reader.StopRecord();
 
-            Branch<KeyData> hotkeyMacrosModeBranch = new Branch<KeyData>(reader.ReadSequence);
-            mHotkeyMacrosModeBranch = hotkeyMacrosModeBranch;
+            mHotkeyMacrosModeBranch = new Branch<KeyData>(reader.ReadSequence, mKeyDataEqualityComparer);
         }
 
         public static T FindParent<T>(DependencyObject child) where T : DependencyObject
@@ -172,7 +175,8 @@ namespace MacroKey
                     mSenderKey.SendKeyPress((KeyData[])obj);
                     return false;
                 },
-                mMacroCollectionReader.ReadSequence.ToArray());
+                mMacroCollectionReader.ReadSequence.ToArray(),
+                mKeyDataEqualityComparer);
             mTree.AddBranch(Branch<KeyData>.MergeBranches(mHotkeyMacrosModeBranch, branchSequence));
             Macros macro = new Macros(textBoxMacrosName.Text, mSequenceCollectionReader.ReadSequence, mMacroCollectionReader.ReadSequence);
             mMacrosCollection.Add(macro);
