@@ -15,14 +15,14 @@ namespace MacroKey.Machine
 
         public Tree(IEnumerable<Branch<KeyTypeTransition>> branch, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(equalityComparer)
         {
-            mBranchCollection = branch.ToList();
-            AdditionTree(mBranchCollection);
+            SetBranch(branch);
         }
 
         public void SetBranch(IEnumerable<Branch<KeyTypeTransition>> branch)
         {
             mBranchCollection = branch.ToList();
-            AdditionTree(mBranchCollection);
+            StartStateTree.ClearNextStates();
+            AddBranch(branch);
         }
 
         public void AddBranch(Branch<KeyTypeTransition> branch)
@@ -31,25 +31,24 @@ namespace MacroKey.Machine
             StartStateTree.AddNextState(branch.StartBranchState);
         }
 
+        public void AddBranch(IEnumerable<Branch<KeyTypeTransition>> branch)
+        {
+            mBranchCollection.AddRange(branch);
+            foreach (var item in branch)
+                StartStateTree.AddNextState(item.StartBranchState);
+        }
+
         public void RemoveBranch(Branch<KeyTypeTransition> branch)
         {
             if(!mBranchCollection.Remove(branch))
                 throw new BranchNotExistTreeException("Tree does not exist , this branch");
-            StartStateTree.ClearNextStates();
-            AdditionTree(mBranchCollection);
+            SetBranch(mBranchCollection);
         }
 
         public void RemoveBranch(int index)
         {
             mBranchCollection.RemoveAt(index);
-            StartStateTree.ClearNextStates();
-            AdditionTree(mBranchCollection);
-        }
-
-        private void AdditionTree(IEnumerable<Branch<KeyTypeTransition>> branch)
-        {
-            foreach (var item in mBranchCollection)
-                StartStateTree.AddNextState(item.StartBranchState);
+            SetBranch(mBranchCollection);
         }
 
         public void ClearTree()

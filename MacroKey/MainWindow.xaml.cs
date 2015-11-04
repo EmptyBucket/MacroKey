@@ -7,6 +7,7 @@ using System.Windows.Media;
 using MacroKey.Machine;
 using MacroKey.Key;
 using MacroKey.LowLevelApi;
+using System.Collections.Generic;
 
 namespace MacroKey
 {
@@ -17,6 +18,7 @@ namespace MacroKey
         private static KeyDataEqualityComparer mKeyDataEqualityComparer = new KeyDataEqualityComparer();
 
         private Tree<KeyData> mTree = new Tree<KeyData>(mKeyDataEqualityComparer);
+        private List<Branch<KeyData>> listBranchSequence = new List<Branch<KeyData>>();
 
         private Branch<KeyData> mHotkeyExecuteGUIBranch;
         private Branch<KeyData> mHotkeyMacrosModeBranch;
@@ -112,6 +114,17 @@ namespace MacroKey
             HookSequenceReader reader = (HookSequenceReader)element.DataContext;
             reader.StopRecord();
 
+            if (reader.ReadSequence.Count == 0)
+            {
+                MessageBox.Show("Execute GUI hotkey is empty", "Error", MessageBoxButton.OK);
+                return;
+            }
+
+            try
+            {
+                mTree.RemoveBranch(mHotkeyExecuteGUIBranch);
+            }
+            catch (BranchNotExistTreeException) { }
             mHotkeyExecuteGUIBranch = new Branch<KeyData>(
                 reader.ReadSequence,
                 obj =>
@@ -126,7 +139,7 @@ namespace MacroKey
                     return true;
                 },
                 mKeyDataEqualityComparer);
-            //доделать
+            mTree.AddBranch(mHotkeyExecuteGUIBranch);
         }
 
         private void HotkeyBoxMacrosMode_LostFocus(object sender, RoutedEventArgs e)
@@ -135,7 +148,16 @@ namespace MacroKey
             HookSequenceReader reader = (HookSequenceReader)element.DataContext;
             reader.StopRecord();
 
+            if (reader.ReadSequence.Count == 0)
+            {
+                MessageBox.Show("Macros mode hotkey is empty", "Error", MessageBoxButton.OK);
+                return;
+            }
+
             mHotkeyMacrosModeBranch = new Branch<KeyData>(reader.ReadSequence, mKeyDataEqualityComparer);
+            mTree.SetBranch(listBranchSequence.Select(branch => Branch<KeyData>.MergeBranches(mHotkeyMacrosModeBranch, branch)));
+            if(mHotkeyExecuteGUIBranch != null)
+                mTree.AddBranch(mHotkeyExecuteGUIBranch);
         }
 
         public static T FindParent<T>(DependencyObject child) where T : DependencyObject
@@ -178,8 +200,11 @@ namespace MacroKey
                 mMacroCollectionReader.ReadSequence.ToArray(),
                 mKeyDataEqualityComparer);
             mTree.AddBranch(Branch<KeyData>.MergeBranches(mHotkeyMacrosModeBranch, branchSequence));
+            listBranchSequence.Add(branchSequence);
+
             Macros macro = new Macros(textBoxMacrosName.Text, mSequenceCollectionReader.ReadSequence, mMacroCollectionReader.ReadSequence);
             mMacrosCollection.Add(macro);
+
             textBoxMacrosName.Clear();
             mSequenceCollectionReader.Clear();
             mMacroCollectionReader.Clear();

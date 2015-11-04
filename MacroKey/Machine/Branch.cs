@@ -19,6 +19,14 @@ namespace MacroKey.Machine
             mEqualityComparer = equalityComparer;
         }
 
+        public Branch(Func<object, object> function, object functionArg = null, IEqualityComparer<KeyTypeTransition> equalityComparer = null)
+        {
+            StartBranchState = new FunctionalState<KeyTypeTransition>(function, equalityComparer);
+            LastBranchState = StartBranchState;
+            mPenultimateState = StartBranchState;
+            mEqualityComparer = equalityComparer;
+        }
+
         public Branch(Branch<KeyTypeTransition> branch)
         {
             StartBranchState = branch.StartBranchState;
@@ -40,15 +48,24 @@ namespace MacroKey.Machine
 
         public Branch(IEnumerable<KeyTypeTransition> keys, Func<object, object> function, object functionArg = null, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(equalityComparer)
         {
-            foreach (var item in keys)
+            if(keys.Count() == 0)
             {
+                LastBranchState = new FunctionalState<KeyTypeTransition>(function, functionArg, equalityComparer);
+                StartBranchState = LastBranchState;
                 mPenultimateState = LastBranchState;
-                State<KeyTypeTransition> newState = new State<KeyTypeTransition>(equalityComparer);
-                LastBranchState.SetNextState(item, newState);
-                LastBranchState = newState;
             }
-            LastBranchState = new FunctionalState<KeyTypeTransition>(function, functionArg, equalityComparer);
-            mPenultimateState.SetNextState(mPenultimateState.NextState.Keys.First(), LastBranchState);
+            else
+            {
+                foreach (var item in keys)
+                {
+                    mPenultimateState = LastBranchState;
+                    State<KeyTypeTransition> newState = new State<KeyTypeTransition>(equalityComparer);
+                    LastBranchState.SetNextState(item, newState);
+                    LastBranchState = newState;
+                }
+                LastBranchState = new FunctionalState<KeyTypeTransition>(function, functionArg, equalityComparer);
+                mPenultimateState.SetNextState(mPenultimateState.NextState.Keys.First(), LastBranchState);
+            }
         }
 
         public Branch(IEnumerable<KeyTypeTransition> keys, IEnumerable<Func<object, object>> functions, IEnumerable<object> functionArg = null, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(equalityComparer)
