@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace MacroKey.Machine
 {
@@ -7,7 +8,7 @@ namespace MacroKey.Machine
         public Func<object, object> FunctionState { get; set; }
         public object FunctionArg { get; set; }
 
-        public FunctionalState(Func<object, object> function, object functionArg = null) : base()
+        public FunctionalState(Func<object, object> function, object functionArg = null, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : base(equalityComparer)
         {
             FunctionState = function;
             FunctionArg = functionArg;

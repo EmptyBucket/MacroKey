@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace MacroKey
+namespace MacroKey.LowLevelApi
 {
     public class HookerKeys
     {

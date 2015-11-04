@@ -7,9 +7,11 @@ namespace MacroKey.Machine
     {
         public Dictionary<KeyTypeTransition, State<KeyTypeTransition>> NextState { get; private set; }
 
-        public State()
+        public State(IEqualityComparer<KeyTypeTransition> equalityComparer = null)
         {
-            NextState = new Dictionary<KeyTypeTransition, State<KeyTypeTransition>>();
+            if (equalityComparer == null)
+                equalityComparer = EqualityComparer<KeyTypeTransition>.Default;
+            NextState = new Dictionary<KeyTypeTransition, State<KeyTypeTransition>>(equalityComparer);
         }
 
         public virtual void SetNextState(KeyTypeTransition key, State<KeyTypeTransition> state)

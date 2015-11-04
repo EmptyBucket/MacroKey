@@ -73,6 +73,7 @@
     </ApplicationDefinition>
     <Compile Include="Key\KeyDataCollectionToStringConverter.cs" />
     <Compile Include="Key\KeyData.cs" />
+    <Compile Include="Key\KeyDataEqualityComparer.cs" />
     <Compile Include="Machine\Branch.cs" />
     <Compile Include="Machine\BranchNotExistTreeException.cs" />
     <Compile Include="Machine\FunctionalState.cs" />
