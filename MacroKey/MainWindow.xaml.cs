@@ -5,23 +5,25 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using MacroKey.Machine;
-using MacroKey.Key;
+using MacroKey.Keyboard;
 using MacroKey.LowLevelApi;
 using System.Collections.Generic;
+using System;
+using MacroKey.LowLevelApi.Hook;
 
 namespace MacroKey
 {
     public partial class MainWindow : Window
     {
-        private static HookerKeys mHookerKey = new HookerKeys();
+        private static HookerKeyboard mHookerKey = new HookerKeyboard();
         private static SenderKeyInput mSenderKey = new SenderKeyInput();
-        private static KeyDataEqualityComparer mKeyDataEqualityComparer = new KeyDataEqualityComparer();
+        private static KeyboardDataEqualityComparer mKeyDataEqualityComparer = new KeyboardDataEqualityComparer();
 
-        private Tree<KeyData> mTree = new Tree<KeyData>(mKeyDataEqualityComparer);
-        private List<Branch<KeyData>> listBranchSequence = new List<Branch<KeyData>>();
+        private Tree<KeyboardData> mTree = new Tree<KeyboardData>(mKeyDataEqualityComparer);
+        private List<Branch<KeyboardData>> listBranchSequence = new List<Branch<KeyboardData>>();
 
-        private Branch<KeyData> mHotkeyExecuteGUIBranch;
-        private Branch<KeyData> mHotkeyMacrosModeBranch;
+        private Branch<KeyboardData> mHotkeyExecuteGUIBranch;
+        private Branch<KeyboardData> mHotkeyMacrosModeBranch;
 
         private HookSequenceReader mHotkeyExecuteGUIReader = new HookSequenceReader(mHookerKey);
         private HookSequenceReader mHotkeyMacrosModeReader = new HookSequenceReader(mHookerKey);
@@ -40,13 +42,14 @@ namespace MacroKey
         {
             mHookerKey.SetHook();
 
-            TreeWalker<KeyData> machineWalker = new TreeWalker<KeyData>(mTree);
-            mHookerKey.HookedKey += (obj) =>
+            TreeWalker<KeyboardData> machineWalker = new TreeWalker<KeyboardData>(mTree);
+            mHookerKey.Hooked += (obj) =>
             {
-                State<KeyData> currentState = machineWalker.WalkStates(new KeyData(obj.VirtualKeyCode, obj.KeyboardMassage, obj.Time));
-                if (currentState is FunctionalState<KeyData>)
+                var arg = (KeyboardHookEventArgs)obj;
+                State<KeyboardData> currentState = machineWalker.WalkStates(new KeyboardData(arg.VirtualKeyCode, arg.KeyboardMassage, arg.Time));
+                if (currentState is FunctionalState<KeyboardData>)
                 {
-                    FunctionalState<KeyData> functionalState = (FunctionalState<KeyData>)currentState;
+                    FunctionalState<KeyboardData> functionalState = (FunctionalState<KeyboardData>)currentState;
                     return (bool)functionalState.FunctionState(functionalState.FunctionArg);
                 }
                 else
@@ -125,7 +128,7 @@ namespace MacroKey
                 mTree.RemoveBranch(mHotkeyExecuteGUIBranch);
             }
             catch (BranchNotExistTreeException) { }
-            mHotkeyExecuteGUIBranch = new Branch<KeyData>(
+            mHotkeyExecuteGUIBranch = new Branch<KeyboardData>(
                 reader.ReadSequence,
                 obj =>
                 {
@@ -154,8 +157,8 @@ namespace MacroKey
                 return;
             }
 
-            mHotkeyMacrosModeBranch = new Branch<KeyData>(reader.ReadSequence, mKeyDataEqualityComparer);
-            mTree.SetBranch(listBranchSequence.Select(branch => Branch<KeyData>.MergeBranches(mHotkeyMacrosModeBranch, branch)));
+            mHotkeyMacrosModeBranch = new Branch<KeyboardData>(reader.ReadSequence, mKeyDataEqualityComparer);
+            mTree.SetBranch(listBranchSequence.Select(branch => Branch<KeyboardData>.MergeBranches(mHotkeyMacrosModeBranch, branch)));
             if(mHotkeyExecuteGUIBranch != null)
                 mTree.AddBranch(mHotkeyExecuteGUIBranch);
         }
@@ -190,16 +193,15 @@ namespace MacroKey
                 MessageBox.Show("Macros mode hotkey is empty", "Error", MessageBoxButton.OK);
                 return;
             }
-            Branch<KeyData> branchSequence = new Branch<KeyData>(
-                mSequenceCollectionReader.ReadSequence,
-                obj =>
-                {
-                    mSenderKey.SendKeyPress((KeyData[])obj);
-                    return false;
-                },
-                mMacroCollectionReader.ReadSequence.ToArray(),
-                mKeyDataEqualityComparer);
-            mTree.AddBranch(Branch<KeyData>.MergeBranches(mHotkeyMacrosModeBranch, branchSequence));
+            IEnumerable<Func<object, object>> functions = Enumerable.Repeat<Func<object, object>>(obj => false, mSequenceCollectionReader.ReadSequence.Count);
+            Branch<KeyboardData> branchSequence = new Branch<KeyboardData>(mSequenceCollectionReader.ReadSequence, functions, mKeyDataEqualityComparer);
+            branchSequence.SetFunctionBranch(obj =>
+            {
+                mSenderKey.SendKeyPress((KeyboardData[])obj);
+                return false;
+            }, mMacroCollectionReader.ReadSequence.ToArray());
+
+            mTree.AddBranch(Branch<KeyboardData>.MergeBranches(mHotkeyMacrosModeBranch, branchSequence));
             listBranchSequence.Add(branchSequence);
 
             Macros macro = new Macros(textBoxMacrosName.Text, mSequenceCollectionReader.ReadSequence, mMacroCollectionReader.ReadSequence);
@@ -214,15 +216,15 @@ namespace MacroKey
         {
             FrameworkElement element = (FrameworkElement)sender;
             ListView listView = FindParent<ListView>(element);
-            ObservableKeyDataCollection listViewDataContext = (ObservableKeyDataCollection)listView.DataContext;
-            listViewDataContext.Remove((KeyData)element.DataContext);
+            ObservableKeyboardDataCollection listViewDataContext = (ObservableKeyboardDataCollection)listView.DataContext;
+            listViewDataContext.Remove((KeyboardData)element.DataContext);
         }
 
         private void CleanRowsSequenceButton_Click(object sender, RoutedEventArgs e)
         {
             FrameworkElement element = (FrameworkElement)sender;
             ListView listView = FindParent<ListView>(element);
-            ObservableKeyDataCollection listViewDataContext = (ObservableKeyDataCollection)listView.DataContext;
+            ObservableKeyboardDataCollection listViewDataContext = (ObservableKeyboardDataCollection)listView.DataContext;
             listViewDataContext.Clear();
         }
 

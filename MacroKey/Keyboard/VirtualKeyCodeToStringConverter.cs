@@ -1,21 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Windows.Data;
+using System.Windows.Input;
 
-namespace MacroKey.Key
+namespace MacroKey.Keyboard
 {
-    [ValueConversion(typeof(IEnumerable<KeyData>), typeof(string))]
-    public class KeyDataCollectionToStringConverter : IValueConverter
+    [ValueConversion(typeof(short), typeof(string))]
+    class VirtualKeyCodeToStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (targetType != typeof(string))
                 throw new InvalidOperationException("The target must be a String");
 
-            Func<KeyData, string> getStr = keyData => keyData.KeyMessage == KeyData.KeyboardMessage.WM_KEYDOWM ? keyData.KeyValue.ToLower() : keyData.KeyValue.ToUpper();
-            return string.Join("", ((IEnumerable<KeyData>)value).Select(getStr));
+            return KeyInterop.KeyFromVirtualKey((short)value).ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

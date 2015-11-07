@@ -4,11 +4,11 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace MacroKey.Key
+namespace MacroKey.Keyboard
 {
-    public class ObservableKeyDataCollection : INotifyCollectionChanged, INotifyPropertyChanged, IList<KeyData>
+    public class ObservableKeyboardDataCollection : INotifyCollectionChanged, INotifyPropertyChanged, IList<KeyboardData>
     {
-        public IList<KeyData> Collection { get; }
+        public IList<KeyboardData> Collection { get; }
 
         public int Count
         {
@@ -26,7 +26,7 @@ namespace MacroKey.Key
             }
         }
 
-        public KeyData this[int index]
+        public KeyboardData this[int index]
         {
             get
             {
@@ -39,14 +39,14 @@ namespace MacroKey.Key
             }
         }
 
-        public ObservableKeyDataCollection()
+        public ObservableKeyboardDataCollection()
         {
-            Collection = new ObservableCollection<KeyData>();
+            Collection = new ObservableCollection<KeyboardData>();
         }
 
-        public ObservableKeyDataCollection(IEnumerable<KeyData> keyDataEnumerable)
+        public ObservableKeyboardDataCollection(IEnumerable<KeyboardData> keyDataEnumerable)
         {
-            Collection = new ObservableCollection<KeyData>(keyDataEnumerable);
+            Collection = new ObservableCollection<KeyboardData>(keyDataEnumerable);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -72,12 +72,12 @@ namespace MacroKey.Key
                 CollectionChanged(sender, e);
         }
 
-        public int IndexOf(KeyData item)
+        public int IndexOf(KeyboardData item)
         {
             return Collection.IndexOf(item);
         }
 
-        public void Insert(int index, KeyData item)
+        public void Insert(int index, KeyboardData item)
         {
             Collection.Insert(index, item);
             OnCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
@@ -89,7 +89,7 @@ namespace MacroKey.Key
             OnCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
-        public void Add(KeyData item)
+        public void Add(KeyboardData item)
         {
             Collection.Add(item);
             OnCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
@@ -101,24 +101,24 @@ namespace MacroKey.Key
             OnCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
-        public bool Contains(KeyData item)
+        public bool Contains(KeyboardData item)
         {
             return Collection.Contains(item);
         }
 
-        public void CopyTo(KeyData[] array, int arrayIndex)
+        public void CopyTo(KeyboardData[] array, int arrayIndex)
         {
             Collection.CopyTo(array, arrayIndex);
         }
 
-        public bool Remove(KeyData item)
+        public bool Remove(KeyboardData item)
         {
             var remObj = Collection.Remove(item);
             OnCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             return remObj;
         }
 
-        public IEnumerator<KeyData> GetEnumerator()
+        public IEnumerator<KeyboardData> GetEnumerator()
         {
             return Collection.GetEnumerator();
         }

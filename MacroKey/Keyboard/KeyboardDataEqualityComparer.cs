@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace MacroKey.Key
+namespace MacroKey.Keyboard
 {
-    class KeyDataEqualityComparer : IEqualityComparer<KeyData>
+    class KeyboardDataEqualityComparer : IEqualityComparer<KeyboardData>
     {
-        public bool Equals(KeyData x, KeyData y)
+        public bool Equals(KeyboardData x, KeyboardData y)
         {
             if (ReferenceEquals(null, x)) return false;
             if (ReferenceEquals(null, y)) return false;
@@ -12,7 +12,7 @@ namespace MacroKey.Key
             return x.VirtualKeyCode.Equals(y.VirtualKeyCode) && x.KeyMessage.Equals(y.KeyMessage);
         }
 
-        public int GetHashCode(KeyData obj)
+        public int GetHashCode(KeyboardData obj)
         {
             return 0;
         }

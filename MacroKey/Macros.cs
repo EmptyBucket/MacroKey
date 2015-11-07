@@ -1,19 +1,19 @@
 ﻿using System.Collections.Generic;
-using MacroKey.Key;
+using MacroKey.Keyboard;
 
 namespace MacroKey
 {
     public class Macros
     {
         public string Name { get; }
-        public ObservableKeyDataCollection Macro { get; } = new ObservableKeyDataCollection();
-        public ObservableKeyDataCollection Sequence { get; } = new ObservableKeyDataCollection();
+        public ObservableKeyboardDataCollection Macro { get; } = new ObservableKeyboardDataCollection();
+        public ObservableKeyboardDataCollection Sequence { get; } = new ObservableKeyboardDataCollection();
 
-        public Macros(string name, IEnumerable<KeyData> sequence, IEnumerable<KeyData> macros)
+        public Macros(string name, IEnumerable<KeyboardData> sequence, IEnumerable<KeyboardData> macros)
         {
             Name = name;
-            Sequence = new ObservableKeyDataCollection(sequence);
-            Macro = new ObservableKeyDataCollection(macros);
+            Sequence = new ObservableKeyboardDataCollection(sequence);
+            Macro = new ObservableKeyboardDataCollection(macros);
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using MacroKey.Key;
+using MacroKey.Keyboard;
 
 namespace MacroKey.LowLevelApi
 {
@@ -98,12 +98,12 @@ namespace MacroKey.LowLevelApi
             UNICODE = 0x0004
         }
 
-        public void SendKeyPress(IEnumerable<KeyData> keyStruct)
+        public void SendKeyPress(IEnumerable<KeyboardData> keyStruct)
         {
             SendKeyPress(keyStruct.ToArray());
         }
 
-        public void SendKeyPress(KeyData[] keyStruct)
+        public void SendKeyPress(KeyboardData[] keyStruct)
         {
             INPUT[] inputs = keyStruct.Select(item =>
                 new INPUT()
@@ -114,7 +114,7 @@ namespace MacroKey.LowLevelApi
                         ki = new KEYBDINPUT()
                         {
                             wVk = item.VirtualKeyCode,
-                            dwFlags = item.KeyMessage == KeyData.KeyboardMessage.WM_KEYUP ? KEYEVENTF.KEYUP : KEYEVENTF.NONE,
+                            dwFlags = item.KeyMessage == KeyboardData.KeyboardMessage.WM_KEYUP ? KEYEVENTF.KEYUP : KEYEVENTF.NONE,
                             time = item.Time
                         }
                     }

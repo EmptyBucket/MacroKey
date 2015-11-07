@@ -71,9 +71,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Key\KeyDataCollectionToStringConverter.cs" />
-    <Compile Include="Key\KeyData.cs" />
-    <Compile Include="Key\KeyDataEqualityComparer.cs" />
+    <Compile Include="Keyboard\KeyboardDataCollectionToStringConverter.cs" />
+    <Compile Include="Keyboard\KeyboardData.cs" />
+    <Compile Include="Keyboard\KeyboardDataEqualityComparer.cs" />
+    <Compile Include="Keyboard\VirtualKeyCodeToStringConverter.cs" />
+    <Compile Include="LowLevelApi\Hook\Hooker.cs" />
+    <Compile Include="LowLevelApi\Hook\HookerMouse.cs" />
+    <Compile Include="LowLevelApi\Hook\IHooker.cs" />
     <Compile Include="Machine\Branch.cs" />
     <Compile Include="Machine\BranchNotExistTreeException.cs" />
     <Compile Include="Machine\FunctionalState.cs" />
@@ -82,9 +86,9 @@
     <Compile Include="Machine\Tree.cs" />
     <Compile Include="Machine\TreeWalker.cs" />
     <Compile Include="Macros.cs" />
-    <Compile Include="Key\ObservableKeyDataCollection.cs" />
+    <Compile Include="Keyboard\ObservableKeyboardDataCollection.cs" />
     <Compile Include="LowLevelApi\SenderKeyInput.cs" />
-    <Compile Include="LowLevelApi\HookSequenceReader.cs" />
+    <Compile Include="LowLevelApi\Hook\HookSequenceReader.cs" />
     <Compile Include="Machine\State.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -94,7 +98,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="LowLevelApi\HookerKeys.cs" />
+    <Compile Include="LowLevelApi\Hook\HookerKeyboard.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -179,6 +183,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
