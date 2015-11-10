@@ -35,7 +35,7 @@
     </Grid>
   </ControlTemplate>
 
-
+  
   <Style TargetType="GridViewColumnHeader">
     <Setter Property="Template">
       <Setter.Value>

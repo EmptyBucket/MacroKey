@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using MacroKey.Keyboard;
 
 namespace MacroKey.LowLevelApi
@@ -98,14 +99,14 @@ namespace MacroKey.LowLevelApi
             UNICODE = 0x0004
         }
 
-        public void SendKeyPress(IEnumerable<KeyboardData> keyStruct)
+        public void SendKeyPress(IEnumerable<KeyData> keyStruct)
         {
             SendKeyPress(keyStruct.ToArray());
         }
 
-        public void SendKeyPress(KeyboardData[] keyStruct)
+        public void SendKeyPress(KeyData[] keyDataArray)
         {
-            INPUT[] inputs = keyStruct.Select(item =>
+            INPUT[] inputs = keyDataArray.Select(item =>
                 new INPUT()
                 {
                     mType = SENDINPUTEVENTTYPE.INPUT_KEYBOARD,
@@ -114,13 +115,37 @@ namespace MacroKey.LowLevelApi
                         ki = new KEYBDINPUT()
                         {
                             wVk = item.VirtualKeyCode,
-                            dwFlags = item.KeyMessage == KeyboardData.KeyboardMessage.WM_KEYUP ? KEYEVENTF.KEYUP : KEYEVENTF.NONE,
+                            dwFlags = item.Message == KeyData.KeyMessage.WM_KEYUP ? KEYEVENTF.KEYUP : KEYEVENTF.NONE,
                             time = item.Time
                         }
                     }
                 }).ToArray();
-
             SendInput((uint)inputs.Length, inputs, INPUT.Size);
+        }
+
+        public async void SendKeyPress(KeyDataDelay[] keyDataDelayArray)
+        {
+            await Task.Run(() =>
+            {
+                foreach (var item in keyDataDelayArray)
+                {
+                    Task.WaitAll(new Task[] { Task.Delay(item.Delay) });
+                    INPUT input = new INPUT()
+                    {
+                        mType = SENDINPUTEVENTTYPE.INPUT_KEYBOARD,
+                        mInputUnion = new InputUnion()
+                        {
+                            ki = new KEYBDINPUT
+                            {
+                                wVk = item.VirtualKeyCode,
+                                dwFlags = item.Message == KeyData.KeyMessage.WM_KEYUP ? KEYEVENTF.KEYUP : KEYEVENTF.NONE,
+                                time = item.Time
+                            }
+                        }
+                    };
+                    SendInput(1, new INPUT[] { input }, INPUT.Size);
+                }
+            });
         }
     }
 }

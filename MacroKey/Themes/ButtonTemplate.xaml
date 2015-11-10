@@ -9,7 +9,7 @@
       <Trigger Property="IsPressed" Value="True">
         <Setter TargetName="border" Property="Background" Value="Gray"/>
       </Trigger>
-      <Trigger Property="IsKeyboardFocused" Value="True">
+      <Trigger Property="IsFocused" Value="True">
         <Setter TargetName="border" Property="BorderBrush" Value="Blue"/>
         <Setter TargetName="border" Property="BorderThickness" Value="1"/>
       </Trigger>

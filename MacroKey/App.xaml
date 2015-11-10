@@ -4,5 +4,6 @@
              xmlns:local="clr-namespace:MacroKey"
              StartupUri="MainWindow.xaml">
   <Application.Resources>
+    <ResourceDictionary Source="/Themes/Icons.xaml"/>
   </Application.Resources>
 </Application>

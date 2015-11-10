@@ -14,6 +14,12 @@ namespace MacroKey.Machine
             NextState = new Dictionary<KeyTypeTransition, State<KeyTypeTransition>>(equalityComparer);
         }
 
+        public State(State<KeyTypeTransition> state)
+        {
+            State<KeyTypeTransition> copyState = new State<KeyTypeTransition>(state.NextState.Comparer);
+            state.MemberwiseClone();
+        }
+
         public virtual void SetNextState(KeyTypeTransition key, State<KeyTypeTransition> state)
         {
             NextState[key] = state;

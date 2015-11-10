@@ -3,14 +3,14 @@ using System.Runtime.InteropServices;
 
 namespace MacroKey.LowLevelApi.Hook
 {
-    public class KeyboardHookEventArgs : HookEventArgs
+    public class KeyHookEventArgs : HookEventArgs
     {
         public short VirtualKeyCode { get; set; }
         public int Time { get; set; }
-        public int KeyboardMassage { get; set; }
+        public int KeyMassage { get; set; }
     }
 
-    public class HookerKeyboard : Hooker
+    public class HookerKey : Hooker
     {
         [StructLayout(LayoutKind.Sequential)]
         private struct KeyHookedStruct
@@ -34,10 +34,10 @@ namespace MacroKey.LowLevelApi.Hook
                 KeyHookedStruct keyStruct = (KeyHookedStruct)Marshal.PtrToStructure(lParam, typeof(KeyHookedStruct));
                 int keyboardMessage = (int)wParam;
 
-                KeyboardHookEventArgs keyHookEventArgs = new KeyboardHookEventArgs()
+                KeyHookEventArgs keyHookEventArgs = new KeyHookEventArgs()
                 {
                     VirtualKeyCode = keyStruct.VirtualKeyCode,
-                    KeyboardMassage = keyboardMessage,
+                    KeyMassage = keyboardMessage,
                     Time = keyStruct.Time
                 };
 

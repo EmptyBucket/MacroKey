@@ -6,8 +6,8 @@ using System.Windows.Data;
 
 namespace MacroKey.Keyboard
 {
-    [ValueConversion(typeof(IEnumerable<KeyboardData>), typeof(string))]
-    public class KeyboardDataCollectionToStringConverter : IValueConverter
+    [ValueConversion(typeof(IEnumerable<KeyData>), typeof(string))]
+    public class KeyDataCollectionToStringConverter : IValueConverter
     {
         private VirtualKeyCodeToStringConverter virtualKeyCodeToStringConverter = new VirtualKeyCodeToStringConverter();
 
@@ -16,12 +16,12 @@ namespace MacroKey.Keyboard
             if (targetType != typeof(string))
                 throw new InvalidOperationException("The target must be a String");
 
-            Func<KeyboardData, string> getStr = keyData =>
+            Func<KeyData, string> getStr = keyData =>
             {
                 string keyValue = virtualKeyCodeToStringConverter.Convert(keyData.VirtualKeyCode, typeof(string), null, null).ToString();
-                return keyData.KeyMessage == KeyboardData.KeyboardMessage.WM_KEYDOWM ? keyValue.ToLower() : keyValue.ToUpper();
+                return keyData.Message == KeyData.KeyMessage.WM_KEYDOWM ? keyValue.ToLower() : keyValue.ToUpper();
             };
-            return string.Join("", ((IEnumerable<KeyboardData>)value).Select(getStr));
+            return string.Join("", ((IEnumerable<KeyData>)value).Select(getStr));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

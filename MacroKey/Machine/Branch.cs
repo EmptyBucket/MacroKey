@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MacroKey.Keyboard;
 
 namespace MacroKey.Machine
 {
@@ -18,14 +17,6 @@ namespace MacroKey.Machine
             LastBranchState = StartBranchState;
             mPenultimateState = StartBranchState;
             mEqualityComparer = equalityComparer;
-        }
-
-        public Branch(Branch<KeyTypeTransition> branch)
-        {
-            StartBranchState = branch.StartBranchState;
-            mPenultimateState = branch.mPenultimateState;
-            LastBranchState = branch.LastBranchState;
-            mEqualityComparer = branch.mEqualityComparer;
         }
 
         public Branch(IEnumerable<KeyTypeTransition> keys, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(equalityComparer)
@@ -80,12 +71,6 @@ namespace MacroKey.Machine
             }
         }
 
-        public void SetNextState(State<KeyTypeTransition> state)
-        {
-            mPenultimateState.SetNextState(mPenultimateState.NextState.Keys.First(), state);
-            LastBranchState = state;
-        }
-
         public void AdditionBranch(Branch<KeyTypeTransition> branch)
         {
             mPenultimateState.SetNextState(mPenultimateState.NextState.Keys.First(), branch.StartBranchState);
@@ -98,13 +83,16 @@ namespace MacroKey.Machine
             mPenultimateState.SetNextState(mPenultimateState.NextState.Keys.First(), LastBranchState);
         }
 
-        public static Branch<KeyTypeTransition> MergeBranches(Branch<KeyTypeTransition> oneBranch, Branch<KeyTypeTransition> twoBranch)
+        public void AddPart(Tree<KeyTypeTransition> tree)
         {
-            Branch<KeyTypeTransition> newBranch = new Branch<KeyTypeTransition>(oneBranch);
-            newBranch.mPenultimateState.SetNextState(newBranch.mPenultimateState.NextState.Keys.First(), twoBranch.StartBranchState);
-            newBranch.LastBranchState = twoBranch.LastBranchState;
+            KeyTypeTransition key = mPenultimateState.NextState.Keys.First();
+            mPenultimateState.NextState[key] = tree.StartStateTree;
+        }
 
-            return newBranch;
+        public void AddPart(State<KeyTypeTransition> state)
+        {
+            mPenultimateState.SetNextState(mPenultimateState.NextState.Keys.First(), state);
+            LastBranchState = state;
         }
     }
 }

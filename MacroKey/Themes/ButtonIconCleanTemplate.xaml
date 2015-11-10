@@ -10,7 +10,10 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Border CornerRadius="10" Background="LightGreen" BorderBrush="Green" BorderThickness="1">
+          <Border CornerRadius="10" BorderBrush="Black" BorderThickness="1">
+            <Border.Background>
+              <SolidColorBrush Color="White" Opacity="0"/>
+            </Border.Background>
             <ContentPresenter Content="{StaticResource IconClean}" Height="15" Width="15"/>
           </Border>
         </ControlTemplate>

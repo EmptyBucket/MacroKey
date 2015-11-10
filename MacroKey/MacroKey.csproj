@@ -71,10 +71,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Keyboard\KeyboardDataCollectionToStringConverter.cs" />
-    <Compile Include="Keyboard\KeyboardData.cs" />
-    <Compile Include="Keyboard\KeyboardDataEqualityComparer.cs" />
+    <Compile Include="Keyboard\KeyDataCollectionToStringConverter.cs" />
+    <Compile Include="Keyboard\KeyData.cs" />
+    <Compile Include="Keyboard\KeyDataEqualityComparer.cs" />
+    <Compile Include="Keyboard\KeyDataDelay.cs" />
+    <Compile Include="Keyboard\KeyMessageToIconConverter.cs" />
     <Compile Include="Keyboard\VirtualKeyCodeToStringConverter.cs" />
+    <Compile Include="LowLevelApi\HookReader\HookKeyDataDelayReader.cs" />
+    <Compile Include="LowLevelApi\HookReader\HookReader.cs" />
+    <Compile Include="LowLevelApi\HookReader\IHookReader.cs" />
     <Compile Include="LowLevelApi\Hook\Hooker.cs" />
     <Compile Include="LowLevelApi\Hook\HookerMouse.cs" />
     <Compile Include="LowLevelApi\Hook\IHooker.cs" />
@@ -86,9 +91,9 @@
     <Compile Include="Machine\Tree.cs" />
     <Compile Include="Machine\TreeWalker.cs" />
     <Compile Include="Macros.cs" />
-    <Compile Include="Keyboard\ObservableKeyboardDataCollection.cs" />
+    <Compile Include="ObservablePropertyCollection.cs" />
     <Compile Include="LowLevelApi\SenderKeyInput.cs" />
-    <Compile Include="LowLevelApi\Hook\HookSequenceReader.cs" />
+    <Compile Include="LowLevelApi\HookReader\HookKeyDataReader.cs" />
     <Compile Include="Machine\State.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -98,7 +103,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="LowLevelApi\Hook\HookerKeyboard.cs" />
+    <Compile Include="LowLevelApi\Hook\HookerKey.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

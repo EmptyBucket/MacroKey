@@ -4,11 +4,11 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace MacroKey.Keyboard
+namespace MacroKey
 {
-    public class ObservableKeyboardDataCollection : INotifyCollectionChanged, INotifyPropertyChanged, IList<KeyboardData>
+    public class ObservablePropertyCollection<T> : INotifyCollectionChanged, INotifyPropertyChanged, IList<T>
     {
-        public IList<KeyboardData> Collection { get; }
+        public IList<T> Collection { get; }
 
         public int Count
         {
@@ -26,27 +26,29 @@ namespace MacroKey.Keyboard
             }
         }
 
-        public KeyboardData this[int index]
+        public T this[int index]
         {
             get
             {
                 return Collection[index];
             }
-
             set
             {
+                T originalItem = Collection[index];
                 Collection[index] = value;
+
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, originalItem, index));
             }
         }
 
-        public ObservableKeyboardDataCollection()
+        public ObservablePropertyCollection()
         {
-            Collection = new ObservableCollection<KeyboardData>();
+            Collection = new ObservableCollection<T>();
         }
 
-        public ObservableKeyboardDataCollection(IEnumerable<KeyboardData> keyDataEnumerable)
+        public ObservablePropertyCollection(IEnumerable<T> keyDataEnumerable)
         {
-            Collection = new ObservableCollection<KeyboardData>(keyDataEnumerable);
+            Collection = new ObservableCollection<T>(keyDataEnumerable);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -54,71 +56,71 @@ namespace MacroKey.Keyboard
 
         private void OnPropertyChanged()
         {
-            OnChangedProperty(this, new PropertyChangedEventArgs("Collection"));
+            OnChangedProperty(new PropertyChangedEventArgs("Collection"));
         }
 
-        protected virtual void OnChangedProperty(object sender, PropertyChangedEventArgs e)
+        protected virtual void OnChangedProperty(PropertyChangedEventArgs e)
         {
             var handler = PropertyChanged;
             if (handler != null)
                 PropertyChanged(this, e);
         }
 
-        protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
             OnPropertyChanged();
             var handler = CollectionChanged;
             if (handler != null)
-                CollectionChanged(sender, e);
+                CollectionChanged(this, e);
         }
 
-        public int IndexOf(KeyboardData item)
+        public int IndexOf(T item)
         {
             return Collection.IndexOf(item);
         }
 
-        public void Insert(int index, KeyboardData item)
+        public void Insert(int index, T item)
         {
             Collection.Insert(index, item);
-            OnCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
         }
 
         public void RemoveAt(int index)
         {
             Collection.RemoveAt(index);
-            OnCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, index));
         }
 
-        public void Add(KeyboardData item)
+        public void Add(T item)
         {
             Collection.Add(item);
-            OnCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item));
         }
 
         public void Clear()
         {
             Collection.Clear();
-            OnCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
-        public bool Contains(KeyboardData item)
+        public bool Contains(T item)
         {
             return Collection.Contains(item);
         }
 
-        public void CopyTo(KeyboardData[] array, int arrayIndex)
+        public void CopyTo(T[] array, int arrayIndex)
         {
             Collection.CopyTo(array, arrayIndex);
         }
 
-        public bool Remove(KeyboardData item)
+        public bool Remove(T item)
         {
             var remObj = Collection.Remove(item);
-            OnCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             return remObj;
         }
 
-        public IEnumerator<KeyboardData> GetEnumerator()
+        public IEnumerator<T> GetEnumerator()
         {
             return Collection.GetEnumerator();
         }

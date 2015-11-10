@@ -10,25 +10,28 @@ using MacroKey.LowLevelApi;
 using System.Collections.Generic;
 using System;
 using MacroKey.LowLevelApi.Hook;
+using MacroKey.LowLevelApi.HookReader;
+using System.Collections.Specialized;
 
 namespace MacroKey
 {
     public partial class MainWindow : Window
     {
-        private static HookerKeyboard mHookerKey = new HookerKeyboard();
+        private static HookerKey mHookerKey = new HookerKey();
         private static SenderKeyInput mSenderKey = new SenderKeyInput();
-        private static KeyboardDataEqualityComparer mKeyDataEqualityComparer = new KeyboardDataEqualityComparer();
+        private static KeyDataEqualityComparer mKeyDataEqualityComparer = new KeyDataEqualityComparer();
 
-        private Tree<KeyboardData> mTree = new Tree<KeyboardData>(mKeyDataEqualityComparer);
-        private List<Branch<KeyboardData>> listBranchSequence = new List<Branch<KeyboardData>>();
+        private Tree<KeyData> mTreeRoot = new Tree<KeyData>(mKeyDataEqualityComparer);
+        private Tree<KeyData> mTreeSequence = new Tree<KeyData>(mKeyDataEqualityComparer);
+        private List<Branch<KeyData>> listBranchSequence = new List<Branch<KeyData>>();
 
-        private Branch<KeyboardData> mHotkeyExecuteGUIBranch;
-        private Branch<KeyboardData> mHotkeyMacrosModeBranch;
+        private Branch<KeyData> mHotkeyExecuteGUIBranch = new Branch<KeyData>(mKeyDataEqualityComparer);
+        private Branch<KeyData> mHotkeyMacrosModeBranch = new Branch<KeyData>(mKeyDataEqualityComparer);
 
-        private HookSequenceReader mHotkeyExecuteGUIReader = new HookSequenceReader(mHookerKey);
-        private HookSequenceReader mHotkeyMacrosModeReader = new HookSequenceReader(mHookerKey);
-        private HookSequenceReader mSequenceCollectionReader = new HookSequenceReader(mHookerKey);
-        private HookSequenceReader mMacroCollectionReader = new HookSequenceReader(mHookerKey);
+        private HookKeyDataReader mHotkeyExecuteGUIReader = new HookKeyDataReader(mHookerKey);
+        private HookKeyDataReader mHotkeyMacrosModeReader = new HookKeyDataReader(mHookerKey);
+        private HookKeyDataReader mSequenceCollectionReader = new HookKeyDataReader(mHookerKey);
+        private HookKeyDataDelayReader mMacroCollectionReader = new HookKeyDataDelayReader(mHookerKey);
 
         private ObservableCollection<Macros> mMacrosCollection = new ObservableCollection<Macros>();
 
@@ -42,20 +45,29 @@ namespace MacroKey
         {
             mHookerKey.SetHook();
 
-            TreeWalker<KeyboardData> machineWalker = new TreeWalker<KeyboardData>(mTree);
+            TreeWalker<KeyData> machineWalker = new TreeWalker<KeyData>(mTreeRoot);
             mHookerKey.Hooked += (obj) =>
             {
-                var arg = (KeyboardHookEventArgs)obj;
-                State<KeyboardData> currentState = machineWalker.WalkStates(new KeyboardData(arg.VirtualKeyCode, arg.KeyboardMassage, arg.Time));
-                if (currentState is FunctionalState<KeyboardData>)
+                var arg = (KeyHookEventArgs)obj;
+                State<KeyData> currentState = machineWalker.WalkStates(new KeyData(arg.VirtualKeyCode, arg.KeyMassage, arg.Time));
+                if (currentState is FunctionalState<KeyData>)
                 {
-                    FunctionalState<KeyboardData> functionalState = (FunctionalState<KeyboardData>)currentState;
+                    FunctionalState<KeyData> functionalState = (FunctionalState<KeyData>)currentState;
                     return (bool)functionalState.FunctionState(functionalState.FunctionArg);
                 }
                 else
                     return true;
             };
             InitializeDataContext();
+            mMacroCollectionReader.ReadSequence.CollectionChanged += ReadSequence_CollectionChanged;
+        }
+
+        private void ReadSequence_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            int value = delayDefault.Text == string.Empty ? 0 : int.Parse(delayDefault.Text);
+            if (e.NewItems != null)
+            foreach (var item in e.NewItems)
+                ((KeyDataDelay)item).Delay = value;
         }
 
         private void InitializeDataContext()
@@ -77,7 +89,21 @@ namespace MacroKey
             {
                 StopAllRecord();
                 buttonSender.Content = "Stop Record";
-                HookSequenceReader hookSequenceReader = (HookSequenceReader)buttonSender.DataContext;
+                HookKeyDataReader hookSequenceReader = (HookKeyDataReader)buttonSender.DataContext;
+                hookSequenceReader.StartRecord();
+            }
+            else
+                StopAllRecord();
+        }
+
+        private void StartRecordMacro_Click(object sender, RoutedEventArgs e)
+        {
+            Button buttonSender = (Button)sender;
+            if (buttonSender.Content.ToString() == "Record Sequence")
+            {
+                StopAllRecord();
+                buttonSender.Content = "Stop Record";
+                HookKeyDataDelayReader hookSequenceReader = (HookKeyDataDelayReader)buttonSender.DataContext;
                 hookSequenceReader.StartRecord();
             }
             else
@@ -107,14 +133,14 @@ namespace MacroKey
             StopAllRecord();
 
             FrameworkElement element = (FrameworkElement)sender;
-            HookSequenceReader reader = (HookSequenceReader)element.DataContext;
+            HookKeyDataReader reader = (HookKeyDataReader)element.DataContext;
             reader.StartNewRecord();
         }
 
         private void HotkeyBoxExecuteGUI_LostFocus(object sender, RoutedEventArgs e)
         {
             FrameworkElement element = (FrameworkElement)sender;
-            HookSequenceReader reader = (HookSequenceReader)element.DataContext;
+            HookKeyDataReader reader = (HookKeyDataReader)element.DataContext;
             reader.StopRecord();
 
             if (reader.ReadSequence.Count == 0)
@@ -123,12 +149,7 @@ namespace MacroKey
                 return;
             }
 
-            try
-            {
-                mTree.RemoveBranch(mHotkeyExecuteGUIBranch);
-            }
-            catch (BranchNotExistTreeException) { }
-            mHotkeyExecuteGUIBranch = new Branch<KeyboardData>(
+            mHotkeyExecuteGUIBranch = new Branch<KeyData>(
                 reader.ReadSequence,
                 obj =>
                 {
@@ -142,13 +163,13 @@ namespace MacroKey
                     return true;
                 },
                 mKeyDataEqualityComparer);
-            mTree.AddBranch(mHotkeyExecuteGUIBranch);
+            mTreeRoot.SetPart(new List<Branch<KeyData>> { mHotkeyExecuteGUIBranch, mHotkeyMacrosModeBranch });
         }
 
         private void HotkeyBoxMacrosMode_LostFocus(object sender, RoutedEventArgs e)
         {
             FrameworkElement element = (FrameworkElement)sender;
-            HookSequenceReader reader = (HookSequenceReader)element.DataContext;
+            HookKeyDataReader reader = (HookKeyDataReader)element.DataContext;
             reader.StopRecord();
 
             if (reader.ReadSequence.Count == 0)
@@ -157,10 +178,9 @@ namespace MacroKey
                 return;
             }
 
-            mHotkeyMacrosModeBranch = new Branch<KeyboardData>(reader.ReadSequence, mKeyDataEqualityComparer);
-            mTree.SetBranch(listBranchSequence.Select(branch => Branch<KeyboardData>.MergeBranches(mHotkeyMacrosModeBranch, branch)));
-            if(mHotkeyExecuteGUIBranch != null)
-                mTree.AddBranch(mHotkeyExecuteGUIBranch);
+            mHotkeyMacrosModeBranch = new Branch<KeyData>(reader.ReadSequence, mKeyDataEqualityComparer);
+            mHotkeyMacrosModeBranch.AddPart(mTreeSequence);
+            mTreeRoot.SetPart(new List<Branch<KeyData>> { mHotkeyMacrosModeBranch, mHotkeyExecuteGUIBranch });
         }
 
         public static T FindParent<T>(DependencyObject child) where T : DependencyObject
@@ -194,14 +214,14 @@ namespace MacroKey
                 return;
             }
             IEnumerable<Func<object, object>> functions = Enumerable.Repeat<Func<object, object>>(obj => false, mSequenceCollectionReader.ReadSequence.Count);
-            Branch<KeyboardData> branchSequence = new Branch<KeyboardData>(mSequenceCollectionReader.ReadSequence, functions, mKeyDataEqualityComparer);
+            Branch<KeyData> branchSequence = new Branch<KeyData>(mSequenceCollectionReader.ReadSequence, functions, mKeyDataEqualityComparer);
             branchSequence.SetFunctionBranch(obj =>
             {
-                mSenderKey.SendKeyPress((KeyboardData[])obj);
+                mSenderKey.SendKeyPress((KeyDataDelay[])obj);
                 return false;
             }, mMacroCollectionReader.ReadSequence.ToArray());
 
-            mTree.AddBranch(Branch<KeyboardData>.MergeBranches(mHotkeyMacrosModeBranch, branchSequence));
+            mTreeSequence.AddPart(branchSequence.StartBranchState);
             listBranchSequence.Add(branchSequence);
 
             Macros macro = new Macros(textBoxMacrosName.Text, mSequenceCollectionReader.ReadSequence, mMacroCollectionReader.ReadSequence);
@@ -216,16 +236,30 @@ namespace MacroKey
         {
             FrameworkElement element = (FrameworkElement)sender;
             ListView listView = FindParent<ListView>(element);
-            ObservableKeyboardDataCollection listViewDataContext = (ObservableKeyboardDataCollection)listView.DataContext;
-            listViewDataContext.Remove((KeyboardData)element.DataContext);
+            ObservablePropertyCollection<KeyData> listViewDataContext = (ObservablePropertyCollection<KeyData>)listView.DataContext;
+            listViewDataContext.Remove((KeyData)element.DataContext);
+        }
+
+        private void DeleteRowMacroButton_Click(object sender, RoutedEventArgs e)
+        {
+            FrameworkElement element = (FrameworkElement)sender;
+            ListView listView = FindParent<ListView>(element);
+            ObservablePropertyCollection<KeyDataDelay> listViewDataContext = (ObservablePropertyCollection<KeyDataDelay>)listView.DataContext;
+            listViewDataContext.Remove((KeyDataDelay)element.DataContext);
         }
 
         private void CleanRowsSequenceButton_Click(object sender, RoutedEventArgs e)
         {
             FrameworkElement element = (FrameworkElement)sender;
             ListView listView = FindParent<ListView>(element);
-            ObservableKeyboardDataCollection listViewDataContext = (ObservableKeyboardDataCollection)listView.DataContext;
-            listViewDataContext.Clear();
+            ((ObservablePropertyCollection<KeyData>)listView.DataContext).Clear();
+        }
+
+        private void CleanRowsMacroButton_Click(object sender, RoutedEventArgs e)
+        {
+            FrameworkElement element = (FrameworkElement)sender;
+            ListView listView = FindParent<ListView>(element);
+            ((ObservablePropertyCollection<KeyDataDelay>)listView.DataContext).Clear();
         }
 
         private void DeleteRowMacrosButton_Click(object sender, RoutedEventArgs e)
@@ -234,15 +268,39 @@ namespace MacroKey
             Macros macro = (Macros)element.DataContext;
 
             int index = mMacrosCollection.IndexOf(macro);
-            mTree.RemoveBranch(index);
+            mTreeSequence.RemoveState(index);
 
             mMacrosCollection.Remove(macro);
         }
 
         private void CleanRowsMacrosButton_Click(object sender, RoutedEventArgs e)
         {
-            mTree.ClearTree();
+            mTreeSequence.ClearTree();
             mMacrosCollection.Clear();
+        }
+
+        private void delay_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            string text = e.Text;
+            try
+            {
+                int.Parse(text);
+            }
+            catch
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void delayDefault_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox textBox = (TextBox)sender;
+            int value = delayDefault.Text == string.Empty ? 0 : int.Parse(delayDefault.Text);
+            for (int i = 0; i < mMacroCollectionReader.ReadSequence.Count; i++)
+            {
+                var item = mMacroCollectionReader.ReadSequence[i];
+                mMacroCollectionReader.ReadSequence[i] = new KeyDataDelay(item.VirtualKeyCode, (int)item.Message, item.Time, value);
+            }
         }
     }
 }

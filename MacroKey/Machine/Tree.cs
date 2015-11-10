@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace MacroKey.Machine
 {
-    class Tree<KeyTypeTransition>
+    public class Tree<KeyTypeTransition>
     {
-        private List<Branch<KeyTypeTransition>> mBranchCollection = new List<Branch<KeyTypeTransition>>();
+        private List<State<KeyTypeTransition>> mStateCollection = new List<State<KeyTypeTransition>>();
         public State<KeyTypeTransition> StartStateTree { get; private set; }
 
         public Tree(IEqualityComparer<KeyTypeTransition> equalityComparer = null)
@@ -13,42 +13,74 @@ namespace MacroKey.Machine
             StartStateTree = new State<KeyTypeTransition>(equalityComparer);
         }
 
-        public Tree(IEnumerable<Branch<KeyTypeTransition>> branch, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(equalityComparer)
+        public Tree(IEnumerable<State<KeyTypeTransition>> stateEnumerable, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(equalityComparer)
         {
-            SetBranch(branch);
+            SetPart(stateEnumerable);
         }
 
-        public void SetBranch(IEnumerable<Branch<KeyTypeTransition>> branch)
+        public void SetPart(IEnumerable<State<KeyTypeTransition>> stateEnumerable)
         {
-            mBranchCollection = branch.ToList();
+            mStateCollection = stateEnumerable.ToList();
+            SetPat();
+        }
+
+        public void SetPart(IEnumerable<Branch<KeyTypeTransition>> branchEnumerable)
+        {
+            mStateCollection = branchEnumerable.Select(branch => branch.StartBranchState).ToList();
+            SetPat();
+        }
+
+        private void SetPat()
+        {
             StartStateTree.ClearNextStates();
-            AddBranch(branch);
+            AddRangePart(mStateCollection);
         }
 
-        public void AddBranch(Branch<KeyTypeTransition> branch)
+        public void AddPart(State<KeyTypeTransition> state)
         {
-            mBranchCollection.Add(branch);
+            mStateCollection.Add(state);
+            StartStateTree.AddNextState(state);
+        }
+
+        public void AddPart(Branch<KeyTypeTransition> branch)
+        {
+            mStateCollection.Add(branch.StartBranchState);
             StartStateTree.AddNextState(branch.StartBranchState);
         }
 
-        public void AddBranch(IEnumerable<Branch<KeyTypeTransition>> branch)
+        public void AddRangePart(IEnumerable<State<KeyTypeTransition>> stateEnumerable)
         {
-            mBranchCollection.AddRange(branch);
-            foreach (var item in branch)
-                StartStateTree.AddNextState(item.StartBranchState);
+            mStateCollection.AddRange(stateEnumerable);
+            foreach (var item in stateEnumerable)
+                StartStateTree.AddNextState(item);
         }
 
-        public void RemoveBranch(Branch<KeyTypeTransition> branch)
+        public void AddRangePart(IEnumerable<Branch<KeyTypeTransition>> branchEnumerable)
         {
-            if(!mBranchCollection.Remove(branch))
+            IEnumerable<State<KeyTypeTransition>> stateEnumerabe = branchEnumerable.Select(branch => branch.StartBranchState);
+            mStateCollection.AddRange(stateEnumerabe);
+            foreach (var item in stateEnumerabe)
+                StartStateTree.AddNextState(item);
+        }
+
+        public void RemoveState(State<KeyTypeTransition> state)
+        {
+            if(!mStateCollection.Remove(state))
                 throw new BranchNotExistTreeException("Tree does not exist , this branch");
-            SetBranch(mBranchCollection);
+            SetPart(mStateCollection);
         }
 
-        public void RemoveBranch(int index)
+        public void RemovePart(Branch<KeyTypeTransition> branch)
         {
-            mBranchCollection.RemoveAt(index);
-            SetBranch(mBranchCollection);
+            if (!mStateCollection.Remove(branch.StartBranchState))
+                throw new BranchNotExistTreeException("Tree does not exist , this branch");
+            SetPart(mStateCollection);
+        }
+
+        public void RemoveState(int index)
+        {
+            mStateCollection.RemoveAt(index);
+            SetPart(mStateCollection);
         }
 
         public void ClearTree()

@@ -19,8 +19,9 @@
         <ResourceDictionary Source="/Themes/TextBlockHeaderTemplate.xaml"/>
         <ResourceDictionary Source="/Themes/TextBoxLineTemplate.xaml"/>
         <ResourceDictionary xmlns:local="clr-namespace:MacroKey.Keyboard">
-          <local:KeyboardDataCollectionToStringConverter x:Key="keyboardDataCollectionToStringConverter"/>
+          <local:KeyDataCollectionToStringConverter x:Key="keyDataCollectionToStringConverter"/>
           <local:VirtualKeyCodeToStringConverter x:Key="virtualKeyCodeToStringConverter"/>
+          <local:KeyMessageToIconConverter x:Key="keyMessageToIconConverter"/>
         </ResourceDictionary>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
@@ -43,8 +44,14 @@
           <ListView.View>
             <GridView>
               <GridView.Columns>
-                <GridViewColumn Header="Key" DisplayMemberBinding="{Binding VirtualKeyCode, Converter={StaticResource virtualKeyCodeToStringConverter}}"/>
-                <GridViewColumn Header="State" DisplayMemberBinding="{Binding KeyMessage}"/>
+                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding VirtualKeyCode, Converter={StaticResource virtualKeyCodeToStringConverter}}"/>
+                <GridViewColumn Header="State">
+                  <GridViewColumn.CellTemplate>
+                    <DataTemplate>
+                      <ContentControl Content="{Binding Message, Converter={StaticResource keyMessageToIconConverter}}"/>
+                    </DataTemplate>
+                  </GridViewColumn.CellTemplate>
+                </GridViewColumn>
                 <GridViewColumn>
                   <GridViewColumn.Header>
                     <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsSequenceButton_Click"/>
@@ -70,19 +77,38 @@
           <RowDefinition Height="9*"/>
         </Grid.RowDefinitions>
         <TextBlock Style="{StaticResource TextBlockHeaderStyle}" Grid.Row="0" Text="Macros"/>
-        <ListView x:Name="listMacroKey" Grid.Row="2" ItemsSource="{Binding}">
+        <ListView x:Name="listMacroKey" Grid.Row="3" ItemsSource="{Binding}">
           <ListView.View>
             <GridView>
               <GridView.Columns>
-                <GridViewColumn Header="Key" DisplayMemberBinding="{Binding VirtualKeyCode, Converter={StaticResource virtualKeyCodeToStringConverter}}"/>
-                  <GridViewColumn Header="State" DisplayMemberBinding="{Binding KeyMessage}"/>
+                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding VirtualKeyCode, Converter={StaticResource virtualKeyCodeToStringConverter}}"/>
+                <GridViewColumn Header="State">
+                  <GridViewColumn.CellTemplate>
+                    <DataTemplate>
+                      <ContentControl Content="{Binding Message, Converter={StaticResource keyMessageToIconConverter}}"/>
+                    </DataTemplate>
+                  </GridViewColumn.CellTemplate>
+                </GridViewColumn>
                 <GridViewColumn>
                   <GridViewColumn.Header>
-                    <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsSequenceButton_Click"/>
+                    <StackPanel Orientation="Horizontal">
+                      <ContentControl Content="{StaticResource IconTime}" Height="15" Width="15"/>
+                      <TextBox Style="{StaticResource TextBoxLineStyle}" Text="20" x:Name="delayDefault" PreviewTextInput="delay_PreviewTextInput" TextChanged="delayDefault_TextChanged"/>
+                    </StackPanel>
                   </GridViewColumn.Header>
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
-                      <Button Style="{StaticResource ButtonIconDeleteStyle}" Click="DeleteRowSequenceButton_Click"/>
+                      <TextBox Style="{StaticResource TextBoxLineStyle}" PreviewTextInput="delay_PreviewTextInput" Text="{Binding Path=Delay, Mode=TwoWay}"/>
+                    </DataTemplate>
+                  </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+                <GridViewColumn>
+                  <GridViewColumn.Header>
+                    <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsMacroButton_Click"/>
+                  </GridViewColumn.Header>
+                  <GridViewColumn.CellTemplate>
+                    <DataTemplate>
+                      <Button Style="{StaticResource ButtonIconDeleteStyle}" Click="DeleteRowMacroButton_Click"/>
                     </DataTemplate>
                   </GridViewColumn.CellTemplate>
                 </GridViewColumn>
@@ -90,7 +116,7 @@
             </GridView>
           </ListView.View>
         </ListView>
-        <Button x:Name="recordMacroButton" Content="Record Sequence" Grid.Row="1" Click="StartRecordSequence_Click" Margin="5"/>
+        <Button x:Name="recordMacroButton" Content="Record Sequence" Grid.Row="1" Click="StartRecordMacro_Click" Margin="5"/>
       </Grid>
     </Border>
     <Border Grid.Column="1">
@@ -107,11 +133,11 @@
         <StackPanel Grid.Row="1" Margin="5">
           <WrapPanel>
             <TextBlock Text="Execute GUI Hotkey" Margin="2"/>
-            <TextBox x:Name="executeGUIHotkeyBox" BorderBrush="Gray" Margin="12,2,2,2" Background="Transparent" LostFocus="HotkeyBoxExecuteGUI_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ReadSequence.Collection, Converter={StaticResource keyboardDataCollectionToStringConverter}, Mode=OneWay}"/>
+            <TextBox x:Name="executeGUIHotkeyBox" BorderBrush="Gray" Margin="12,2,2,2" Background="Transparent" LostFocus="HotkeyBoxExecuteGUI_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ReadSequence.Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}"/>
           </WrapPanel>
           <WrapPanel>
             <TextBlock Text="Macros Mode Hotkey" Margin="2"/>
-            <TextBox x:Name="macrosModHotkeyBox" BorderBrush="Gray" Margin="2,2,2,2" Background="Transparent" LostFocus="HotkeyBoxMacrosMode_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ReadSequence.Collection, Converter={StaticResource keyboardDataCollectionToStringConverter}, Mode=OneWay}"/>
+            <TextBox x:Name="macrosModHotkeyBox" BorderBrush="Gray" Margin="2,2,2,2" Background="Transparent" LostFocus="HotkeyBoxMacrosMode_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ReadSequence.Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}"/>
           </WrapPanel>
         </StackPanel>
         <Button Content="Create Macros" Grid.Row="2" Click="CreateMacros_Click" Margin="5"/>
@@ -128,8 +154,8 @@
           <ListView.View>
             <GridView>
               <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
-              <GridViewColumn Header="Sequence" DisplayMemberBinding="{Binding Sequence, Converter={StaticResource keyboardDataCollectionToStringConverter}}"/>
-              <GridViewColumn Header="Macro" DisplayMemberBinding="{Binding Macro, Converter={StaticResource keyboardDataCollectionToStringConverter}}"/>
+              <GridViewColumn Header="Sequence" DisplayMemberBinding="{Binding Sequence, Converter={StaticResource keyDataCollectionToStringConverter}}"/>
+              <GridViewColumn Header="Macro" DisplayMemberBinding="{Binding Macro, Converter={StaticResource keyDataCollectionToStringConverter}}"/>
               <GridViewColumn>
                 <GridViewColumn.Header>
                   <Button Style="{StaticResource ButtonIconCleanStyle}" Click="CleanRowsMacrosButton_Click"/>

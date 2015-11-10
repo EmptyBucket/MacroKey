@@ -8,6 +8,7 @@
     <Setter Property="Opacity" Value="0.8"/>
     <Setter Property="Background">
       <Setter.Value>
+        <!--<SolidColorBrush Color="White" Opacity="0.5"/>-->
         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
           <GradientStop Color="#FF37D637"/>
           <GradientStop Color="#FF32C932" Offset="1"/>
