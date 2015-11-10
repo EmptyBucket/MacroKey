@@ -84,7 +84,7 @@
     <Compile Include="LowLevelApi\Hook\HookerMouse.cs" />
     <Compile Include="LowLevelApi\Hook\IHooker.cs" />
     <Compile Include="Machine\Branch.cs" />
-    <Compile Include="Machine\BranchNotExistTreeException.cs" />
+    <Compile Include="Machine\StateNotExistTreeException.cs" />
     <Compile Include="Machine\FunctionalState.cs" />
     <Compile Include="Machine\IState.cs" />
     <Compile Include="Machine\StateWalker.cs" />

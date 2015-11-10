@@ -37,7 +37,7 @@ namespace MacroKey.Machine
         public void RemoveState(State<KeyTypeTransition> state)
         {
             if(!mStateCollection.Remove(state))
-                throw new BranchNotExistTreeException("Tree does not exist , this branch");
+                throw new StateNotExistTreeException("Tree does not exist this state");
             SetState(mStateCollection);
         }
 
