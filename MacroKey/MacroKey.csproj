@@ -71,7 +71,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Keyboard\KeyDataCollectionToStringConverter.cs" />
+    <Compile Include="Keyboard\KeyDataEnumerableToStringConverter.cs" />
     <Compile Include="Keyboard\KeyData.cs" />
     <Compile Include="Keyboard\KeyDataEqualityComparer.cs" />
     <Compile Include="Keyboard\KeyDataDelay.cs" />
@@ -89,7 +89,6 @@
     <Compile Include="Machine\IState.cs" />
     <Compile Include="Machine\StateWalker.cs" />
     <Compile Include="Machine\Tree.cs" />
-    <Compile Include="Machine\TreeWalker.cs" />
     <Compile Include="Macros.cs" />
     <Compile Include="ObservablePropertyCollection.cs" />
     <Compile Include="LowLevelApi\SenderKeyInput.cs" />

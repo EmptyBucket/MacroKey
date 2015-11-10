@@ -8,7 +8,19 @@ namespace MacroKey
 {
     public class ObservablePropertyCollection<T> : INotifyCollectionChanged, INotifyPropertyChanged, IList<T>
     {
-        public IList<T> Collection { get; }
+        private IList<T> mCollection;
+        public IList<T> Collection
+        {
+            get
+            {
+                return mCollection;
+            }
+            set
+            {
+                mCollection = value;
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            }
+        }
 
         public int Count
         {

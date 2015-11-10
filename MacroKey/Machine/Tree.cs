@@ -3,89 +3,53 @@ using System.Linq;
 
 namespace MacroKey.Machine
 {
-    public class Tree<KeyTypeTransition>
+    public class Tree<KeyTypeTransition> : State<KeyTypeTransition>
     {
         private List<State<KeyTypeTransition>> mStateCollection = new List<State<KeyTypeTransition>>();
-        public State<KeyTypeTransition> StartStateTree { get; private set; }
 
-        public Tree(IEqualityComparer<KeyTypeTransition> equalityComparer = null)
-        {
-            StartStateTree = new State<KeyTypeTransition>(equalityComparer);
-        }
+        public Tree(IEqualityComparer<KeyTypeTransition> equalityComparer = null) : base(equalityComparer) { }
 
         public Tree(IEnumerable<State<KeyTypeTransition>> stateEnumerable, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(equalityComparer)
         {
-            SetPart(stateEnumerable);
+            SetState(stateEnumerable);
         }
 
-        public void SetPart(IEnumerable<State<KeyTypeTransition>> stateEnumerable)
+        public void SetState(IEnumerable<State<KeyTypeTransition>> stateEnumerable)
         {
             mStateCollection = stateEnumerable.ToList();
-            SetPat();
+            ClearNextStates();
+            AddRangeState(mStateCollection);
         }
 
-        public void SetPart(IEnumerable<Branch<KeyTypeTransition>> branchEnumerable)
-        {
-            mStateCollection = branchEnumerable.Select(branch => branch.StartBranchState).ToList();
-            SetPat();
-        }
-
-        private void SetPat()
-        {
-            StartStateTree.ClearNextStates();
-            AddRangePart(mStateCollection);
-        }
-
-        public void AddPart(State<KeyTypeTransition> state)
+        public void AddState(State<KeyTypeTransition> state)
         {
             mStateCollection.Add(state);
-            StartStateTree.AddNextState(state);
+            AddNextState(state);
         }
 
-        public void AddPart(Branch<KeyTypeTransition> branch)
-        {
-            mStateCollection.Add(branch.StartBranchState);
-            StartStateTree.AddNextState(branch.StartBranchState);
-        }
-
-        public void AddRangePart(IEnumerable<State<KeyTypeTransition>> stateEnumerable)
+        public void AddRangeState(IEnumerable<State<KeyTypeTransition>> stateEnumerable)
         {
             mStateCollection.AddRange(stateEnumerable);
             foreach (var item in stateEnumerable)
-                StartStateTree.AddNextState(item);
-        }
-
-        public void AddRangePart(IEnumerable<Branch<KeyTypeTransition>> branchEnumerable)
-        {
-            IEnumerable<State<KeyTypeTransition>> stateEnumerabe = branchEnumerable.Select(branch => branch.StartBranchState);
-            mStateCollection.AddRange(stateEnumerabe);
-            foreach (var item in stateEnumerabe)
-                StartStateTree.AddNextState(item);
+                AddNextState(item);
         }
 
         public void RemoveState(State<KeyTypeTransition> state)
         {
             if(!mStateCollection.Remove(state))
                 throw new BranchNotExistTreeException("Tree does not exist , this branch");
-            SetPart(mStateCollection);
+            SetState(mStateCollection);
         }
 
-        public void RemovePart(Branch<KeyTypeTransition> branch)
-        {
-            if (!mStateCollection.Remove(branch.StartBranchState))
-                throw new BranchNotExistTreeException("Tree does not exist , this branch");
-            SetPart(mStateCollection);
-        }
-
-        public void RemoveState(int index)
+        public void RemoveAtState(int index)
         {
             mStateCollection.RemoveAt(index);
-            SetPart(mStateCollection);
+            SetState(mStateCollection);
         }
 
         public void ClearTree()
         {
-            StartStateTree.ClearNextStates();
+            ClearNextStates();
         }
     }
 }

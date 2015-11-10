@@ -19,7 +19,7 @@
         <ResourceDictionary Source="/Themes/TextBlockHeaderTemplate.xaml"/>
         <ResourceDictionary Source="/Themes/TextBoxLineTemplate.xaml"/>
         <ResourceDictionary xmlns:local="clr-namespace:MacroKey.Keyboard">
-          <local:KeyDataCollectionToStringConverter x:Key="keyDataCollectionToStringConverter"/>
+          <local:KeyDataEnumerableToStringConverter x:Key="keyDataCollectionToStringConverter"/>
           <local:VirtualKeyCodeToStringConverter x:Key="virtualKeyCodeToStringConverter"/>
           <local:KeyMessageToIconConverter x:Key="keyMessageToIconConverter"/>
         </ResourceDictionary>
@@ -89,11 +89,11 @@
                     </DataTemplate>
                   </GridViewColumn.CellTemplate>
                 </GridViewColumn>
-                <GridViewColumn>
+                <GridViewColumn Width="45">
                   <GridViewColumn.Header>
                     <StackPanel Orientation="Horizontal">
                       <ContentControl Content="{StaticResource IconTime}" Height="15" Width="15"/>
-                      <TextBox Style="{StaticResource TextBoxLineStyle}" Text="20" x:Name="delayDefault" PreviewTextInput="delay_PreviewTextInput" TextChanged="delayDefault_TextChanged"/>
+                      <TextBox Style="{StaticResource TextBoxLineStyle}" Text="20" x:Name="delayDefault" PreviewTextInput="delay_PreviewTextInput" TextChanged="delayDefault_TextChanged" GotFocus="TextBox_GotFocus"/>
                     </StackPanel>
                   </GridViewColumn.Header>
                   <GridViewColumn.CellTemplate>
@@ -133,11 +133,11 @@
         <StackPanel Grid.Row="1" Margin="5">
           <WrapPanel>
             <TextBlock Text="Execute GUI Hotkey" Margin="2"/>
-            <TextBox x:Name="executeGUIHotkeyBox" BorderBrush="Gray" Margin="12,2,2,2" Background="Transparent" LostFocus="HotkeyBoxExecuteGUI_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ReadSequence.Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}"/>
+            <TextBox x:Name="executeGUIHotkeyBox" BorderBrush="Gray" Margin="12,2,2,2" Background="Transparent" LostFocus="HotkeyBoxExecuteGUI_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}" PreviewTextInput="hotkeyBox_PreviewTextInput"/>
           </WrapPanel>
           <WrapPanel>
             <TextBlock Text="Macros Mode Hotkey" Margin="2"/>
-            <TextBox x:Name="macrosModHotkeyBox" BorderBrush="Gray" Margin="2,2,2,2" Background="Transparent" LostFocus="HotkeyBoxMacrosMode_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ReadSequence.Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}"/>
+            <TextBox x:Name="macrosModHotkeyBox" BorderBrush="Gray" Margin="2,2,2,2" Background="Transparent" LostFocus="HotkeyBoxMacrosMode_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}" PreviewTextInput="hotkeyBox_PreviewTextInput"/>
           </WrapPanel>
         </StackPanel>
         <Button Content="Create Macros" Grid.Row="2" Click="CreateMacros_Click" Margin="5"/>
@@ -148,7 +148,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <TextBlock Text="Enter macro name:"/>
-          <TextBox Margin="5,0,5,0" x:Name="textBoxMacrosName" Grid.Column="1" Style="{StaticResource TextBoxLineStyle}" GotFocus="TextBoxMacrosName_GotFocus"/>
+          <TextBox Margin="5,0,5,0" x:Name="textBoxMacrosName" Grid.Column="1" Style="{StaticResource TextBoxLineStyle}" GotFocus="TextBox_GotFocus"/>
         </Grid>
         <ListView x:Name="listMacros" Grid.Row="5" ItemsSource="{Binding}">
           <ListView.View>
@@ -168,6 +168,11 @@
               </GridViewColumn>
             </GridView>
           </ListView.View>
+          <ListView.ItemContainerStyle>
+            <Style TargetType="ListViewItem">
+              <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_MouseDoubleClick"/>
+            </Style>
+          </ListView.ItemContainerStyle>
         </ListView>
       </Grid>
     </Border>

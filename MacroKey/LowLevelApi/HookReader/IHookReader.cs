@@ -2,8 +2,6 @@
 {
     interface IHookReader<T>
     {
-        ObservablePropertyCollection<T> ReadSequence { get; }
-
         void Clear();
 
         void StartNewRecord();

@@ -20,17 +20,17 @@ namespace MacroKey.Machine
             state.MemberwiseClone();
         }
 
-        public virtual void SetNextState(KeyTypeTransition key, State<KeyTypeTransition> state)
+        public void SetNextState(KeyTypeTransition key, State<KeyTypeTransition> state)
         {
             NextState[key] = state;
         }
 
-        public virtual void SetNextState(Dictionary<KeyTypeTransition, State<KeyTypeTransition>> nextStates)
+        public void SetNextState(Dictionary<KeyTypeTransition, State<KeyTypeTransition>> nextStates)
         {
             NextState = nextStates;
         }
 
-        public virtual void AddNextState(State<KeyTypeTransition> addState)
+        public void AddNextState(State<KeyTypeTransition> addState)
         {
             var keys = addState.NextState.Keys.ToList();
             foreach (var key in keys)
@@ -40,7 +40,7 @@ namespace MacroKey.Machine
                     this.NextState.Add(key, addState.NextState[key]);
         }
 
-        public virtual void RemoveNextState(State<KeyTypeTransition> removeState)
+        public void RemoveNextState(State<KeyTypeTransition> removeState)
         {
             if (this.NextState.Count != 0 && removeState.NextState.Count == 0)
             {
@@ -61,7 +61,7 @@ namespace MacroKey.Machine
             }
         }
 
-        public virtual void ClearNextStates()
+        public void ClearNextStates()
         {
             NextState.Clear();
         }

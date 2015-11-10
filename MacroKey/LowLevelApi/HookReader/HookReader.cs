@@ -2,13 +2,11 @@
 
 namespace MacroKey.LowLevelApi.HookReader
 {
-    abstract class HookReader<T> : IHookReader<T>
+    abstract class HookReader<T> : ObservablePropertyCollection<T>, IHookReader<T>
     {
         private HookerKey mHooker;
 
         private HookEventHandler hookEventHandler;
-
-        public ObservablePropertyCollection<T> ReadSequence { get; } = new ObservablePropertyCollection<T>();
 
         public HookReader(HookerKey hooker)
         {
@@ -32,11 +30,6 @@ namespace MacroKey.LowLevelApi.HookReader
         public void StopRecord()
         {
             mHooker.Hooked -= hookEventHandler;
-        }
-
-        public void Clear()
-        {
-            ReadSequence.Clear();
         }
     }
 }

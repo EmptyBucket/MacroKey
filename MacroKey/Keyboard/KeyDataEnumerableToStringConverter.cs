@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace MacroKey.Keyboard
 {
     [ValueConversion(typeof(IEnumerable<KeyData>), typeof(string))]
-    public class KeyDataCollectionToStringConverter : IValueConverter
+    public class KeyDataEnumerableToStringConverter : IValueConverter
     {
         private VirtualKeyCodeToStringConverter virtualKeyCodeToStringConverter = new VirtualKeyCodeToStringConverter();
 
@@ -18,8 +19,8 @@ namespace MacroKey.Keyboard
 
             Func<KeyData, string> getStr = keyData =>
             {
-                string keyValue = virtualKeyCodeToStringConverter.Convert(keyData.VirtualKeyCode, typeof(string), null, null).ToString();
-                return keyData.Message == KeyData.KeyMessage.WM_KEYDOWM ? keyValue.ToLower() : keyValue.ToUpper();
+                string keyValue = KeyInterop.KeyFromVirtualKey(keyData.VirtualKeyCode).ToString();
+                return $"[{keyValue}{(keyData.Message == KeyData.KeyMessage.WM_KEYDOWM || keyData.Message == KeyData.KeyMessage.WM_SYSKEYDOWN ? "\u25BC" : "\u25B2")}]";
             };
             return string.Join("", ((IEnumerable<KeyData>)value).Select(getStr));
         }

@@ -14,7 +14,7 @@ namespace MacroKey.LowLevelApi.HookReader
             var arg = (KeyHookEventArgs)e;
             KeyData keyData = new KeyData(arg.VirtualKeyCode, arg.KeyMassage, arg.Time);
             if(keyData.Message != mPrewKeyData.Message || keyData.VirtualKeyCode != mPrewKeyData.VirtualKeyCode)
-                ReadSequence.Add(keyData);
+                Add(keyData);
             mPrewKeyData = keyData;
             return true;
         }
