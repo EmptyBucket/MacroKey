@@ -21,7 +21,14 @@ namespace MacroKey.Machine
             }
             catch (KeyNotFoundException)
             {
-                mCurrentState = mStartState;
+                try
+                {
+                    mCurrentState = mStartState.NextState[key];
+                }
+                catch (KeyNotFoundException)
+                {
+                    mCurrentState = mStartState;
+                }
             }
             return mCurrentState;
         }

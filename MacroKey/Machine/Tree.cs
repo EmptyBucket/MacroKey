@@ -16,9 +16,8 @@ namespace MacroKey.Machine
 
         public void SetState(IEnumerable<State<KeyTypeTransition>> stateEnumerable)
         {
-            mStateCollection = stateEnumerable.ToList();
-            ClearNextStates();
-            AddRangeState(mStateCollection);
+            ClearTree();
+            AddRangeState(stateEnumerable);
         }
 
         public void AddState(State<KeyTypeTransition> state)
@@ -50,6 +49,7 @@ namespace MacroKey.Machine
         public void ClearTree()
         {
             ClearNextStates();
+            mStateCollection.Clear();
         }
     }
 }

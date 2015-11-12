@@ -52,7 +52,6 @@ namespace MacroKey
                 var arg = (KeyHookEventArgs)obj;
                 State<KeyData> currentState = machineWalker.WalkStates(new KeyData(arg.VirtualKeyCode, arg.KeyMassage, arg.Time));
                 return currentState is FunctionalState<KeyData> ? (bool)((FunctionalState<KeyData>)currentState).ExecuteFunction() : true;
-                
             };
         }
 
