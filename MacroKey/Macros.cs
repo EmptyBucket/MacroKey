@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MacroKey.Keyboard;
 
 namespace MacroKey
 {
+    [Serializable]
     public class Macros
     {
         public string Name { get; }

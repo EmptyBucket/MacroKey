@@ -1,4 +1,6 @@
-﻿namespace MacroKey.Machine
+﻿using System;
+
+namespace MacroKey.Machine
 {
     interface IState<KeyTypeTransition>
     {

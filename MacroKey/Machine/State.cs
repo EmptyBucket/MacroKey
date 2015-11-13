@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MacroKey.Machine
 {
+    [Serializable]
     public class State<KeyTypeTransition> : IState<KeyTypeTransition>
     {
         public Dictionary<KeyTypeTransition, State<KeyTypeTransition>> NextState { get; private set; }

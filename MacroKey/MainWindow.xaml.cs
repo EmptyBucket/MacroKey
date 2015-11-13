@@ -12,6 +12,8 @@ using System;
 using MacroKey.LowLevelApi.Hook;
 using MacroKey.LowLevelApi.HookReader;
 using System.Collections.Specialized;
+using MacroKey.Properties;
+using System.ComponentModel;
 
 namespace MacroKey
 {
@@ -40,8 +42,38 @@ namespace MacroKey
             Loaded += Page_Loaded;
         }
 
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            Settings.Default.Save();
+            base.OnClosing(e);
+        }
+
+        private void LoadSettings()
+        {
+            if (Settings.Default.AppSettings == null)
+                Settings.Default.AppSettings = new AppSettings();
+            else
+            {
+                if (Settings.Default.AppSettings.TreeRoot != null)
+                    mTreeRoot = Settings.Default.AppSettings.TreeRoot;
+                if (Settings.Default.AppSettings.TreeSequence != null)
+                    mTreeSequence = Settings.Default.AppSettings.TreeSequence;
+                if (Settings.Default.AppSettings.GUIBranch != null)
+                    mHotkeyExecuteGUIBranch = Settings.Default.AppSettings.GUIBranch;
+                if (Settings.Default.AppSettings.MacrosModeBranch != null)
+                    mHotkeyMacrosModeBranch = Settings.Default.AppSettings.MacrosModeBranch;
+                if (Settings.Default.AppSettings.MacrosEnumerable != null)
+                    mMacrosCollection = new ObservableCollection<Macros>(Settings.Default.AppSettings.MacrosEnumerable);
+                if (Settings.Default.AppSettings.SequenceMacrosMode != null)
+                    mHotkeyMacrosModeReader.Collection = Settings.Default.AppSettings.SequenceMacrosMode.ToList();
+                if (Settings.Default.AppSettings.SequenceGUI != null)
+                    mHotkeyExecuteGUIReader.Collection = Settings.Default.AppSettings.SequenceGUI.ToList();
+            }
+        }
+
         void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            LoadSettings();
             InitializeDataContext();
             mMacroCollectionReader.CollectionChanged += ReadMacro_CollectionChanged;
             mHookerKey.SetHook();
@@ -142,19 +174,24 @@ namespace MacroKey
 
             mHotkeyExecuteGUIBranch = new Branch<KeyData>(
                 reader,
-                obj =>
-                {
-                    if (Visibility == Visibility.Collapsed)
-                    {
-                        Visibility = Visibility.Visible;
-                        Focus();
-                    }
-                    else
-                        Visibility = Visibility.Collapsed;
-                    return true;
-                },
+                //obj =>
+                //{
+                //    if (Visibility == Visibility.Collapsed)
+                //    {
+                //        Visibility = Visibility.Visible;
+                //        Focus();
+                //    }
+                //    else
+                //        Visibility = Visibility.Collapsed;
+                //    return true;
+                //},
                 mKeyDataEqualityComparer);
             mTreeRoot.SetState(new List<Branch<KeyData>> { mHotkeyExecuteGUIBranch, mHotkeyMacrosModeBranch });
+
+            Settings.Default.AppSettings.SequenceMacrosMode = reader.ToList();
+            Settings.Default.AppSettings.GUIBranch = mHotkeyExecuteGUIBranch;
+            Settings.Default.AppSettings.TreeRoot = mTreeRoot;
+            Settings.Default.AppSettings.TreeSequence = mTreeSequence;
         }
 
         private void HotkeyBoxMacrosMode_LostFocus(object sender, RoutedEventArgs e)
@@ -168,6 +205,11 @@ namespace MacroKey
             mHotkeyMacrosModeBranch = new Branch<KeyData>(reader, mKeyDataEqualityComparer);
             mHotkeyMacrosModeBranch.AddState(mTreeSequence);
             mTreeRoot.SetState(new List<Branch<KeyData>> { mHotkeyExecuteGUIBranch, mHotkeyMacrosModeBranch });
+
+            Settings.Default.AppSettings.SequenceMacrosMode = reader.ToList();
+            Settings.Default.AppSettings.MacrosModeBranch = mHotkeyExecuteGUIBranch;
+            Settings.Default.AppSettings.TreeRoot = mTreeRoot;
+            Settings.Default.AppSettings.TreeSequence = mTreeSequence;
         }
 
         public static T FindParent<T>(DependencyObject child) where T : DependencyObject
@@ -212,6 +254,10 @@ namespace MacroKey
 
             Macros macro = new Macros(textBoxMacrosName.Text, mSequenceCollectionReader, mMacroCollectionReader);
             mMacrosCollection.Add(macro);
+
+            Settings.Default.AppSettings.TreeRoot = mTreeRoot;
+            Settings.Default.AppSettings.TreeSequence = mTreeSequence;
+            Settings.Default.AppSettings.MacrosEnumerable = mMacrosCollection.ToList();
 
             textBoxMacrosName.Clear();
             mSequenceCollectionReader.Clear();
@@ -281,11 +327,6 @@ namespace MacroKey
             mMacroCollectionReader.Collection = macros.Macro;
             mSequenceCollectionReader.Collection = macros.Sequence;
             textBoxMacrosName.Text = macros.Name;
-        }
-
-        private void hotkeyBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            TextBox element = (TextBox)sender;
         }
     }
 }

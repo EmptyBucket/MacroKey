@@ -94,6 +94,7 @@
     <Compile Include="LowLevelApi\SenderKeyInput.cs" />
     <Compile Include="LowLevelApi\HookReader\HookKeyDataReader.cs" />
     <Compile Include="Machine\State.cs" />
+    <Compile Include="AppSettings.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

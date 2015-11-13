@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 
 namespace MacroKey.Machine
 {
+    [Serializable]
     public class Tree<KeyTypeTransition> : State<KeyTypeTransition>
     {
         private List<State<KeyTypeTransition>> mStateCollection = new List<State<KeyTypeTransition>>();

@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace MacroKey.Machine
 {
+    [Serializable]
     public class Branch<KeyTypeTransition> : State<KeyTypeTransition>
     {
         public State<KeyTypeTransition> LastBranchState { get; private set; }

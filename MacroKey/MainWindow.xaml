@@ -133,11 +133,11 @@
         <StackPanel Grid.Row="1" Margin="5">
           <WrapPanel>
             <TextBlock Text="Execute GUI Hotkey" Margin="2"/>
-            <TextBox x:Name="executeGUIHotkeyBox" BorderBrush="Gray" Margin="12,2,2,2" Background="Transparent" LostFocus="HotkeyBoxExecuteGUI_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}" PreviewTextInput="hotkeyBox_PreviewTextInput"/>
+            <TextBox x:Name="executeGUIHotkeyBox" BorderBrush="Gray" Margin="12,2,2,2" Background="Transparent" LostFocus="HotkeyBoxExecuteGUI_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}"/>
           </WrapPanel>
           <WrapPanel>
             <TextBlock Text="Macros Mode Hotkey" Margin="2"/>
-            <TextBox x:Name="macrosModHotkeyBox" BorderBrush="Gray" Margin="2,2,2,2" Background="Transparent" LostFocus="HotkeyBoxMacrosMode_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}" PreviewTextInput="hotkeyBox_PreviewTextInput"/>
+            <TextBox x:Name="macrosModHotkeyBox" BorderBrush="Gray" Margin="2,2,2,2" Background="Transparent" LostFocus="HotkeyBoxMacrosMode_LostFocus" GotFocus="HotkeyBox_GotFocus" IsReadOnly="True" MinWidth="20" Text="{Binding Path=Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}"/>
           </WrapPanel>
         </StackPanel>
         <Button Content="Create Macros" Grid.Row="2" Click="CreateMacros_Click" Margin="5"/>

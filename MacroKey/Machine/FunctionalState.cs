@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace MacroKey.Machine
 {
+    [Serializable]
     class FunctionalState<KeyTypeTransition> : State<KeyTypeTransition>
     {
         public Func<object, object> Function { get; set; }
