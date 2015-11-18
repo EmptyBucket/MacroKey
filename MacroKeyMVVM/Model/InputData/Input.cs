@@ -1,4 +1,4 @@
-﻿namespace MacroKey.Keyboard
+﻿namespace MacroKey.InputData
 {
     public interface Input
     {

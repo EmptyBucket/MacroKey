@@ -8,7 +8,7 @@
     <ResourceDictionary Source="/Skins/ButtonSkin.xaml"/>
     <ResourceDictionary Source="/Skins/TextBlockHeaderSkin.xaml"/>
     <ResourceDictionary Source="/Skins/TextBoxLineSkin.xaml"/>
-    <ResourceDictionary xmlns:local="clr-namespace:MacroKey.Keyboard">
+    <ResourceDictionary xmlns:local="clr-namespace:MacroKey.Converters">
       <local:KeyDataEnumerableToStringConverter x:Key="keyDataCollectionToStringConverter"/>
       <local:VirtualKeyCodeToStringConverter x:Key="virtualKeyCodeToStringConverter"/>
       <local:KeyMessageToIconConverter x:Key="keyMessageToIconConverter"/>

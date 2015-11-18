@@ -1,6 +1,6 @@
 ﻿using Ninject;
 
-namespace MacroKeyMVVM.ViewModel
+namespace MacroKey.ViewModel
 {
     public class ViewModelLocator
     {
@@ -15,11 +15,12 @@ namespace MacroKeyMVVM.ViewModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance",
             "CA1822:MarkMembersAsStatic",
             Justification = "This non-static member is needed for data binding purposes.")]
-        public MainViewModel Main => kernel.Get<MainViewModel>();
+        public static MainViewModel Main => kernel.Get<MainViewModel>();
         //public MainViewModel Main => ServiceLocator.Current.GetInstance<MainViewModel>();
 
         public static void Cleanup()
         {
+            Main.Cleanup();
         }
     }
 }

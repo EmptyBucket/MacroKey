@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using MacroKey.Keyboard;
+using MacroKey.InputData;
 
 namespace MacroKey.LowLevelApi
 {
+    [Serializable]
     public abstract class SenderInput : ISenderInput
     {
         [DllImport("user32.dll")]

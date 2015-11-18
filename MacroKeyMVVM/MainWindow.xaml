@@ -1,4 +1,4 @@
-﻿<Window x:Class="MacroKeyMVVM.MainWindow"
+﻿<Window x:Class="MacroKey.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -91,7 +91,7 @@
                       <ContentControl Content="{StaticResource IconTime}" Height="15" Width="15"/>
                       <TextBox Style="{StaticResource TextBoxLineStyle}" Text="{Binding DelayDefault, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged, FallbackValue=20}" GotFocus="textBox_GotFocus" PreviewTextInput="delay_PreviewTextInput" PreviewLostKeyboardFocus="delay_PreviewLostKeyboardFocus">
                         <i:Interaction.Triggers>
-                          <i:EventTrigger EventName="LostFocus">
+                          <i:EventTrigger EventName="PropertyChanged">
                             <i:InvokeCommandAction Command="{Binding SetDefaultDelayCommand}"/>
                           </i:EventTrigger>
                           <i:EventTrigger EventName="GotFocus">

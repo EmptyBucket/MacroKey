@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MacroKeyMVVM.Properties
+namespace MacroKey.Properties
 {
     using System;
 

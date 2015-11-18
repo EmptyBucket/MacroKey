@@ -3,8 +3,9 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using MacroKey.InputData;
 
-namespace MacroKey.Keyboard
+namespace MacroKey.Converters
 {
     [ValueConversion(typeof(KeyData.KeyMessage), typeof(Viewbox))]
     class KeyMessageToIconConverter : IValueConverter

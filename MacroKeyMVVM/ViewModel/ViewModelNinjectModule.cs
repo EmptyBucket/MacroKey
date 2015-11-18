@@ -1,4 +1,4 @@
-﻿using MacroKey.Keyboard;
+﻿using MacroKey.InputData;
 using MacroKey.LowLevelApi;
 using MacroKey.LowLevelApi.Hook;
 using MacroKey.LowLevelApi.HookReader;
@@ -6,7 +6,7 @@ using MacroKey.Machine;
 using Ninject;
 using Ninject.Modules;
 
-namespace MacroKeyMVVM.ViewModel
+namespace MacroKey.ViewModel
 {
     class ViewModelNinjectModule : NinjectModule
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using MacroKey.Keyboard;
+using MacroKey.InputData;
 
 namespace MacroKey
 {

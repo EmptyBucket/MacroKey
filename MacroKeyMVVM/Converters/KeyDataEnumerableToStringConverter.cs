@@ -4,8 +4,9 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
 using System.Windows.Input;
+using MacroKey.InputData;
 
-namespace MacroKey.Keyboard
+namespace MacroKey.Converters
 {
     [ValueConversion(typeof(IEnumerable<KeyData>), typeof(string))]
     public class KeyDataEnumerableToStringConverter : IValueConverter

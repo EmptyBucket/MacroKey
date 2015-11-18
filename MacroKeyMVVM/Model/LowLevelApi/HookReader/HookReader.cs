@@ -1,4 +1,5 @@
-﻿using MacroKey.LowLevelApi.Hook;
+﻿using System.Collections.Generic;
+using MacroKey.LowLevelApi.Hook;
 
 namespace MacroKey.LowLevelApi.HookReader
 {
@@ -10,12 +11,18 @@ namespace MacroKey.LowLevelApi.HookReader
 
         private HookEventHandler hookEventHandler;
 
-        public ObservablePropertyCollection<T> ReadSequence { get; } = new ObservablePropertyCollection<T>();
+        public IList<T> ReadSequence { get; }
 
         public HookReader(IHooker hooker)
         {
             mHooker = hooker;
             hookEventHandler = RecordSequence;
+            ReadSequence = new List<T>();
+        }
+
+        public HookReader(IHooker hooker, IList<T> sequence) : this(hooker)
+        {
+            ReadSequence = sequence;
         }
 
         protected abstract bool RecordSequence(HookEventArgs e);

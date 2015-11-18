@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using GalaSoft.MvvmLight.Threading;
 
-namespace MacroKeyMVVM
+namespace MacroKey
 {
     /// <summary>
     /// Interaction logic for App.xaml

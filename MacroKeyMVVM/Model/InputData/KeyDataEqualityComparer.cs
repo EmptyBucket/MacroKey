@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MacroKey.Keyboard
+namespace MacroKey.InputData
 {
     [Serializable]
     public class KeyDataEqualityComparer : IEqualityComparer<KeyData>

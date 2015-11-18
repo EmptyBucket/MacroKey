@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MacroKey.Keyboard;
+using MacroKey.InputData;
 
 namespace MacroKey.LowLevelApi
 {
+    [Serializable]
     public class SenderKeyDelayInput : SenderInput
     {
         public async void SendKeyPress(IEnumerable<KeyDataDelay> keyDataDelayArray)

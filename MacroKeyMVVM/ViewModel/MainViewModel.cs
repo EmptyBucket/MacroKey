@@ -6,14 +6,15 @@ using System.Linq;
 using System.Windows;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
-using MacroKey;
-using MacroKey.Keyboard;
+using MacroKey.InputData;
 using MacroKey.LowLevelApi;
 using MacroKey.LowLevelApi.Hook;
 using MacroKey.LowLevelApi.HookReader;
 using MacroKey.Machine;
+using MacroKey.Model.Machine;
+using MacroKey.Properties;
 
-namespace MacroKeyMVVM.ViewModel
+namespace MacroKey.ViewModel
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
@@ -24,13 +25,13 @@ namespace MacroKeyMVVM.ViewModel
         public Tree<KeyData> mTreeSequence { get; }
         public Branch<KeyData> mHotkeyExecuteGUIBranch { get; private set; }
         public Branch<KeyData> mHotkeyMacrosModeBranch { get; private set; }
+        public ObservableCollection<Macros> MacrosCollection { get; }
         public string MacrosName { get; set; }
         public string DelayDefault { get; set; }
         public HookKeyDataReader SequenceReader { get; }
         public HookKeyDataDelayReader MacroReader { get; }
         public HookKeyDataReader ExecuteGUIReader { get; }
         public HookKeyDataReader MacrosModeReader { get; }
-        public ObservableCollection<Macros> MacrosCollection { get; } = new ObservableCollection<Macros>();
 
         public RelayCommand RecordSequenceCommand { get; }
         public RelayCommand RecordMacroCommand { get; }
@@ -52,15 +53,21 @@ namespace MacroKeyMVVM.ViewModel
         {
             mHookerKey = hooker;
             mSenderKey = sender;
-            mTreeRoot = new Tree<KeyData>(mKeyDataEqualityComparer);
-            mTreeSequence = new Tree<KeyData>(mKeyDataEqualityComparer);
-            mHotkeyExecuteGUIBranch = new Branch<KeyData>(mKeyDataEqualityComparer);
-            mHotkeyMacrosModeBranch = new Branch<KeyData>(mKeyDataEqualityComparer);
-            SequenceReader = new HookKeyDataReader(mHookerKey);
-            MacroReader = new HookKeyDataDelayReader(mHookerKey);
-            ExecuteGUIReader = new HookKeyDataReader(mHookerKey);
-            MacrosModeReader = new HookKeyDataReader(mHookerKey);
-            MacroReader.ReadSequence.CollectionChanged += ReadMacro_CollectionChanged;
+
+            //if(Settings.Default.Setting == null)
+                Settings.Default.Setting = new AppSettings(mKeyDataEqualityComparer);
+            AppSettings settings = Settings.Default.Setting;
+            mTreeRoot = settings.TreeRoot;
+            mTreeSequence = settings.TreeSequence;
+            mHotkeyExecuteGUIBranch = settings.GUIBranch;
+            mHotkeyMacrosModeBranch = settings.MacrosModeBranch;
+            MacrosCollection = settings.MacrosCollection;
+            ExecuteGUIReader = new HookKeyDataReader(mHookerKey, new ObservablePropertyCollection<KeyData>(settings.SequenceGUI));
+            MacrosModeReader = new HookKeyDataReader(mHookerKey, new ObservablePropertyCollection<KeyData>(settings.SequenceMacrosMode));
+
+            SequenceReader = new HookKeyDataReader(mHookerKey, settings.Sequence);
+            MacroReader = new HookKeyDataDelayReader(mHookerKey, settings.Macro);
+            settings.Macro.CollectionChanged += ReadMacro_CollectionChanged;
 
             RecordSequenceCommand = new RelayCommand(RecordSequence);
             RecordMacroCommand = new RelayCommand(RecordMacro);
@@ -85,8 +92,14 @@ namespace MacroKeyMVVM.ViewModel
             {
                 var arg = (KeyHookEventArgs)obj;
                 State<KeyData> currentState = machineWalker.WalkStates(new KeyData(arg.VirtualKeyCode, arg.KeyMassage, arg.Time));
-                return currentState is FunctionalState<KeyData> ? (bool)((FunctionalState<KeyData>)currentState).ExecuteFunction() : true;
+                return currentState is FunctionState<KeyData> ? (bool)((FunctionState<KeyData>)currentState).ExecuteFunction() : true;
             };
+        }
+
+        public override void Cleanup()
+        {
+            Dispose();
+            Settings.Default.Save();
         }
 
         public void Dispose() => mHookerKey.Unhook();
@@ -123,6 +136,8 @@ namespace MacroKeyMVVM.ViewModel
 
         }
 
+        delegate bool FunctionState(object arg);
+
         public void CreateMacros()
         {
             StopAllRecord();
@@ -142,13 +157,11 @@ namespace MacroKeyMVVM.ViewModel
                 MessageBox.Show("Macros mode hotkey is empty", "Error", MessageBoxButton.OK);
                 return;
             }
-            IEnumerable<Func<object, object>> functions = Enumerable.Repeat<Func<object, object>>(obj => false, SequenceReader.ReadSequence.Count);
-            Branch<KeyData> branchSequence = new Branch<KeyData>(SequenceReader.ReadSequence, functions, mKeyDataEqualityComparer);
-            branchSequence.SetFunctionBranch(obj =>
-            {
-                mSenderKey.SendImput((IEnumerable<KeyDataDelay>)obj);
-                return false;
-            }, MacroReader.ReadSequence.ToArray());
+
+            ReturnFalseFuctionState<KeyData> functionState = new ReturnFalseFuctionState<KeyData>(mKeyDataEqualityComparer);
+            IEnumerable<ReturnFalseFuctionState<KeyData>> functionStateEnum = Enumerable.Repeat(functionState, SequenceReader.ReadSequence.Count);
+            Branch<KeyData> branchSequence = new Branch<KeyData>(SequenceReader.ReadSequence, functionStateEnum, mKeyDataEqualityComparer);
+            branchSequence.SetFunctionBranch(new SendKeyFuctionState<KeyData>(mSenderKey, MacroReader.ReadSequence.ToArray(), mKeyDataEqualityComparer));
 
             mTreeSequence.AddState(branchSequence);
 
@@ -189,6 +202,8 @@ namespace MacroKeyMVVM.ViewModel
                 return;
 
             mHotkeyExecuteGUIBranch = new Branch<KeyData>(ExecuteGUIReader.ReadSequence, mKeyDataEqualityComparer);
+            Settings.Default.Setting.GUIBranch = mHotkeyExecuteGUIBranch;
+            Settings.Default.Setting.SequenceGUI = ExecuteGUIReader.ReadSequence.ToList();
             mTreeRoot.SetState(new List<Branch<KeyData>> { mHotkeyExecuteGUIBranch, mHotkeyMacrosModeBranch });
         }
 
@@ -205,6 +220,8 @@ namespace MacroKeyMVVM.ViewModel
                 return;
 
             mHotkeyMacrosModeBranch = new Branch<KeyData>(MacrosModeReader.ReadSequence, mKeyDataEqualityComparer);
+            Settings.Default.Setting.MacrosModeBranch = mHotkeyMacrosModeBranch;
+            Settings.Default.Setting.SequenceMacrosMode = MacrosModeReader.ReadSequence.ToList();
             mHotkeyMacrosModeBranch.AddState(mTreeSequence);
             mTreeRoot.SetState(new List<Branch<KeyData>> { mHotkeyExecuteGUIBranch, mHotkeyMacrosModeBranch });
         }

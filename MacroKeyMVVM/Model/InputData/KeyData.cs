@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MacroKey.Keyboard
+namespace MacroKey.InputData
 {
     [Serializable]
     public class KeyData : Input

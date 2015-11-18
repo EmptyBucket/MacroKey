@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace MacroKey.Keyboard
+namespace MacroKey.Converters
 {
     [ValueConversion(typeof(short), typeof(string))]
     class VirtualKeyCodeToStringConverter : IValueConverter

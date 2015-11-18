@@ -1,4 +1,5 @@
-﻿using MacroKey.Keyboard;
+﻿using System.Collections.Generic;
+using MacroKey.InputData;
 using MacroKey.LowLevelApi.Hook;
 
 namespace MacroKey.LowLevelApi.HookReader
@@ -8,6 +9,8 @@ namespace MacroKey.LowLevelApi.HookReader
         private KeyData mPrewKeyData = new KeyData(0, 0, 0);
 
         public HookKeyDataReader(IHooker hooker) : base(hooker) { }
+
+        public HookKeyDataReader(IHooker hooker, IList<KeyData> sequence) : base(hooker, sequence) { }
 
         protected override bool RecordSequence(HookEventArgs e)
         {

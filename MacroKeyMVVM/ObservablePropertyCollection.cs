@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -6,6 +7,7 @@ using System.ComponentModel;
 
 namespace MacroKey
 {
+    [Serializable]
     public class ObservablePropertyCollection<T> : INotifyCollectionChanged, INotifyPropertyChanged, IList<T>
     {
         private IList<T> mCollection;

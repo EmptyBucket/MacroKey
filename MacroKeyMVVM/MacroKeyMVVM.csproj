@@ -79,14 +79,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AppSettings.cs" />
     <Compile Include="Macros.cs" />
-    <Compile Include="Model\Keyboard\Input.cs" />
-    <Compile Include="Model\Keyboard\KeyData.cs" />
-    <Compile Include="Model\Keyboard\KeyDataDelay.cs" />
-    <Compile Include="Model\Keyboard\KeyDataEnumerableToStringConverter.cs" />
-    <Compile Include="Model\Keyboard\KeyDataEqualityComparer.cs" />
-    <Compile Include="Model\Keyboard\KeyMessageToIconConverter.cs" />
-    <Compile Include="Model\Keyboard\VirtualKeyCodeToStringConverter.cs" />
+    <Compile Include="Model\InputData\Input.cs" />
+    <Compile Include="Model\InputData\KeyData.cs" />
+    <Compile Include="Model\InputData\KeyDataDelay.cs" />
+    <Compile Include="Converters\KeyDataEnumerableToStringConverter.cs" />
+    <Compile Include="Model\InputData\KeyDataEqualityComparer.cs" />
+    <Compile Include="Converters\KeyMessageToIconConverter.cs" />
+    <Compile Include="Converters\VirtualKeyCodeToStringConverter.cs" />
     <Compile Include="Model\LowLevelApi\HookReader\HookKeyDataDelayReader.cs" />
     <Compile Include="Model\LowLevelApi\HookReader\HookKeyDataReader.cs" />
     <Compile Include="Model\LowLevelApi\HookReader\HookReader.cs" />
@@ -101,8 +102,10 @@
     <Compile Include="Model\LowLevelApi\Sender\SenderKeyInput.cs" />
     <Compile Include="Model\LowLevelApi\Sender\SenderMouseInput.cs" />
     <Compile Include="Model\Machine\Branch.cs" />
-    <Compile Include="Model\Machine\FunctionalState.cs" />
+    <Compile Include="Model\Machine\FunctionState.cs" />
     <Compile Include="Model\Machine\IState.cs" />
+    <Compile Include="Model\Machine\ReturnFalseFuctionState.cs" />
+    <Compile Include="Model\Machine\SendKeyFuctionState.cs" />
     <Compile Include="Model\Machine\State.cs" />
     <Compile Include="Model\Machine\StateNotExistTreeException.cs" />
     <Compile Include="Model\Machine\StateWalker.cs" />

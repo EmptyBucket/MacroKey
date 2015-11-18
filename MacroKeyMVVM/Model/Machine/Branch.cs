@@ -5,91 +5,84 @@ using System.Linq;
 namespace MacroKey.Machine
 {
     [Serializable]
-    public class Branch<KeyTypeTransition> : State<KeyTypeTransition>
+    public class Branch<T> : State<T>
     {
-        public State<KeyTypeTransition> LastBranchState { get; private set; }
-        private State<KeyTypeTransition> mPenultimateState;
-        private IEqualityComparer<KeyTypeTransition> mEqualityComparer;
+        public State<T> LastBranchState { get; private set; }
+        private State<T> mPenultimateState;
+        private IEqualityComparer<T> mEqualityComparer;
 
-        public Branch(IEqualityComparer<KeyTypeTransition> equalityComparer = null) : base(equalityComparer)
+        public Branch(IEqualityComparer<T> equalityComparer = null) : base(equalityComparer)
         {
             LastBranchState = this;
             mPenultimateState = this;
             mEqualityComparer = equalityComparer;
         }
 
-        public Branch(IEnumerable<KeyTypeTransition> keys, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(equalityComparer)
+        public Branch(IEnumerable<T> keys, IEqualityComparer<T> equalityComparer = null) : this(equalityComparer)
         {
             foreach (var item in keys)
             {
                 mPenultimateState = LastBranchState;
-                State<KeyTypeTransition> newState = new State<KeyTypeTransition>(equalityComparer);
+                State<T> newState = new State<T>(equalityComparer);
                 LastBranchState.SetNextState(item, newState);
                 LastBranchState = newState;
             }
         }
 
-        public Branch(IEnumerable<KeyTypeTransition> keys, Func<object, object> function, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(keys, function, null, equalityComparer) { }
-
-        public Branch(IEnumerable<KeyTypeTransition> keys, Func<object, object> function, object functionArg, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(equalityComparer)
+        public Branch(IEnumerable<T> keys, FunctionState<T> functionState, IEqualityComparer<T> equalityComparer = null) : this(equalityComparer)
         {
             if (keys.Count() == 0)
             {
-                SetFunctionBranch(function, functionArg);
+                SetFunctionBranch(functionState);
             }
             else
             {
                 foreach (var item in keys)
                 {
                     mPenultimateState = LastBranchState;
-                    State<KeyTypeTransition> newState = new State<KeyTypeTransition>(equalityComparer);
+                    State<T> newState = new State<T>(equalityComparer);
                     LastBranchState.SetNextState(item, newState);
                     LastBranchState = newState;
                 }
-                LastBranchState = new FunctionalState<KeyTypeTransition>(function, functionArg, equalityComparer);
+                LastBranchState = functionState;
                 mPenultimateState.SetNextState(mPenultimateState.NextState.Keys.First(), LastBranchState);
             }
         }
 
-        public Branch(IEnumerable<KeyTypeTransition> keys, IEnumerable<Func<object, object>> functions, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(keys, functions, null, equalityComparer) { }
-
-        public Branch(IEnumerable<KeyTypeTransition> keys, IEnumerable<Func<object, object>> functions, IEnumerable<object> functionsArg = null, IEqualityComparer<KeyTypeTransition> equalityComparer = null) : this(equalityComparer)
+        public Branch(IEnumerable<T> keys, IEnumerable<FunctionState<T>> functionStateEnum, IEqualityComparer<T> equalityComparer = null) : this(equalityComparer)
         {
             if (keys.Count() == 0)
             {
-                SetFunctionBranch(functions.First(), functionsArg.First());
+                SetFunctionBranch(functionStateEnum.First());
             }
             else
             {
-                if (functionsArg == null)
-                    functionsArg = Enumerable.Repeat<object>(null, functions.Count());
-                var functionsAndArgs = functions.Zip(functionsArg, (function, arg) => new { Function = function, Arg = arg });
-                var keysAndFunctionsAndArgs = keys.Zip(functionsAndArgs, (key, functionAndArg) => new { Key = key, Function = functionAndArg.Function, Arg = functionAndArg.Arg });
+                var keysAndFunctionsAndArgs = keys.Zip(functionStateEnum, (key, functionState) => new { Key = key, FunctionState = functionState });
                 foreach (var item in keysAndFunctionsAndArgs)
                 {
                     mPenultimateState = LastBranchState;
-                    FunctionalState<KeyTypeTransition> newState = new FunctionalState<KeyTypeTransition>(item.Function, functionsArg, equalityComparer);
+                    FunctionState<T> newState = item.FunctionState;
                     LastBranchState.SetNextState(item.Key, newState);
                     LastBranchState = newState;
                 }
             }
         }
 
-        public void AdditionBranch(Branch<KeyTypeTransition> branch)
+        public void AdditionBranch(Branch<T> branch)
         {
             mPenultimateState.SetNextState(mPenultimateState.NextState.Keys.First(), branch);
             LastBranchState = branch.LastBranchState;
         }
 
-        public void SetFunctionBranch(Func<object, object> function, object functionArg = null)
+        public void SetFunctionBranch(FunctionState<T> functionState)
         {
-            LastBranchState = new FunctionalState<KeyTypeTransition>(function, functionArg, mEqualityComparer);
+            LastBranchState = functionState;
             mPenultimateState.SetNextState(mPenultimateState.NextState.Keys.First(), LastBranchState);
         }
 
-        public void AddState(State<KeyTypeTransition> state)
+        public void AddState(State<T> state)
         {
-            KeyTypeTransition key = mPenultimateState.NextState.Keys.First();
+            T key = mPenultimateState.NextState.Keys.First();
             mPenultimateState.NextState[key] = state;
         }
     }

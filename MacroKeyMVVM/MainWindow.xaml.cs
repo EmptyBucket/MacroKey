@@ -1,9 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using MacroKeyMVVM.ViewModel;
+using MacroKey.ViewModel;
 
-namespace MacroKeyMVVM
+namespace MacroKey
 {
     public partial class MainWindow : Window
     {
