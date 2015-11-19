@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using MacroKey.InputData;
 
 namespace MacroKey.LowLevelApi.Hook
 {
-    public class HookEventArgs : EventArgs { }
-
-    public delegate bool HookEventHandler(HookEventArgs e);
+    public delegate bool HookEventHandler(Input e);
 
     public abstract class Hooker : IHooker
     {
@@ -29,7 +28,7 @@ namespace MacroKey.LowLevelApi.Hook
 
         public event HookEventHandler Hooked;
 
-        protected bool OnHooked(HookEventArgs e)
+        protected bool OnHooked(Input e)
         {
             var handler = Hooked;
             if (handler != null)

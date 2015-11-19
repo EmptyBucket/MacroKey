@@ -1,17 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using MacroKey.InputData;
 
 namespace MacroKey.LowLevelApi
 {
     [Serializable]
-    public abstract class SenderInput : ISenderInput
+    public class SenderInput : ISenderInput
     {
         [DllImport("user32.dll")]
         protected static extern uint SendInput(uint nInputs, [MarshalAs(UnmanagedType.LPArray), In] INPUT[] pInputs, int cbSize);
 
-        public abstract void SendImput(IEnumerable<Input> input);
+        public virtual void SendInput(IEnumerable<Input> inputEnum)
+        {
+            INPUT[] inputArray = inputEnum.Select(item =>
+            {
+                INPUT input;
+                if(item is KeyData)
+                {
+                    input = new INPUT()
+                    {
+                        mType = SENDINPUTEVENTTYPE.INPUT_KEYBOARD,
+                        mInputUnion = new InputUnion()
+                        {
+                            ki = new KEYBDINPUT
+                            {
+                                wVk = (short)item.VirtualCode,
+                                dwFlags = item.Message == (int)KeyMessage.WM_KEYUP ? KEYEVENTF.KEYUP : KEYEVENTF.NONE,
+                                time = item.Time
+                            }
+                        }
+                    };
+                }
+                else
+                {
+                    input = new INPUT()
+                    {
+                        mType = SENDINPUTEVENTTYPE.INPUT_MOUSE,
+                        mInputUnion = new InputUnion()
+                        {
+                            mi = new MOUSEINPUT
+                            {
+                                mouseData = item.VirtualCode,
+                                time = item.Time,
+                            }
+                        }
+                    };
+                }
+                return input;
+            }).ToArray();
+            SendInput((uint)inputArray.Length, inputArray, INPUT.Size);
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         protected struct INPUT
@@ -42,7 +82,7 @@ namespace MacroKey.LowLevelApi
             internal int dy;
             internal int mouseData;
             internal MOUSEEVENTF dwFlags;
-            internal uint time;
+            internal int time;
             internal UIntPtr dwExtraInfo;
         }
 

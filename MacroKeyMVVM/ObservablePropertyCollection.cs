@@ -65,6 +65,7 @@ namespace MacroKey
             Collection = new ObservableCollection<T>(keyDataEnumerable);
         }
 
+        [field:NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 

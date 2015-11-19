@@ -9,9 +9,7 @@ namespace MacroKey.Model.Machine
     {
         public ReturnFalseFuctionState(IEqualityComparer<T> equalityComparer) : base(equalityComparer) { }
 
-        public ReturnFalseFuctionState(object arg, IEqualityComparer<T> equalityComparer = null) : base(arg, equalityComparer) { } 
-
-        public override object Function(object arg)
+        protected override object Function(object arg)
         {
             return false;
         }

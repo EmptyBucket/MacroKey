@@ -7,21 +7,21 @@ using MacroKey.InputData;
 
 namespace MacroKey.Converters
 {
-    [ValueConversion(typeof(KeyData.KeyMessage), typeof(Viewbox))]
+    [ValueConversion(typeof(KeyMessage), typeof(Viewbox))]
     class KeyMessageToIconConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            switch ((KeyData.KeyMessage)value)
+            switch ((int)value)
             {
-                case KeyData.KeyMessage.WM_KEYDOWM:
-                case KeyData.KeyMessage.WM_SYSKEYDOWN:
+                case (int)KeyMessage.WM_KEYDOWM:
+                case (int)KeyMessage.WM_SYSKEYDOWN:
                     Viewbox iconKeyDown = Application.Current.FindResource("IconKeyDown") as Viewbox;
                     iconKeyDown.Height = 15;
                     iconKeyDown.Width = 15;
                     return iconKeyDown;
-                case KeyData.KeyMessage.WM_KEYUP:
-                case KeyData.KeyMessage.WM_SYSKEYUP:
+                case (int)KeyMessage.WM_KEYUP:
+                case (int)KeyMessage.WM_SYSKEYUP:
                 default:
                     Viewbox iconKeyUp = Application.Current.FindResource("IconKeyUp") as Viewbox;
                     iconKeyUp.Height = 15;

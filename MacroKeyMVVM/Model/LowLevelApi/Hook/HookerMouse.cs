@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Windows;
+using MacroKeyMVVM.Model.InputData;
 
 namespace MacroKey.LowLevelApi.Hook
 {
-    public class MouseHookEventArgs : HookEventArgs
-    {
-        public int MouseData { get; set; }
-        public int Time { get; set; }
-        public int MouseMessage { get; set; }
-    }
-
     public class HookerMouse : Hooker
     {
         [StructLayout(LayoutKind.Sequential)]
@@ -40,14 +35,9 @@ namespace MacroKey.LowLevelApi.Hook
                 MouseHookedStruck mouseHookedStruct = (MouseHookedStruck)Marshal.PtrToStructure(lParam, typeof(MouseHookedStruck));
                 int mouseMessage = (int)wParam;
 
-                MouseHookEventArgs mouseHookEventArgs = new MouseHookEventArgs()
-                {
-                    MouseData = mouseHookedStruct.mouseData,
-                    MouseMessage = mouseMessage,
-                    Time = mouseHookedStruct.time
-                };
+                MouseData mouseData = new MouseData(new Point(mouseHookedStruct.pt.x, mouseHookedStruct.pt.y), mouseHookedStruct.mouseData, mouseMessage, mouseHookedStruct.time);
 
-                return OnHooked(mouseHookEventArgs) ? CallNextHookEx(mMouseHook, nCode, wParam, lParam) : new IntPtr(1);
+                return OnHooked(mouseData) ? CallNextHookEx(mMouseHook, nCode, wParam, lParam) : new IntPtr(1);
             }
             else
                 return CallNextHookEx(mMouseHook, nCode, wParam, lParam);

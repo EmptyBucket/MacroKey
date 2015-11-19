@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using MacroKey.InputData;
 
 namespace MacroKey.LowLevelApi.Hook
 {
-    public class KeyHookEventArgs : HookEventArgs
-    {
-        public short VirtualKeyCode { get; set; }
-        public int Time { get; set; }
-        public int KeyMassage { get; set; }
-    }
-
     public class HookerKey : Hooker
     {
         [StructLayout(LayoutKind.Sequential)]
@@ -34,14 +28,9 @@ namespace MacroKey.LowLevelApi.Hook
                 KeyHookedStruct keyStruct = (KeyHookedStruct)Marshal.PtrToStructure(lParam, typeof(KeyHookedStruct));
                 int keyboardMessage = (int)wParam;
 
-                KeyHookEventArgs keyHookEventArgs = new KeyHookEventArgs()
-                {
-                    VirtualKeyCode = keyStruct.VirtualKeyCode,
-                    KeyMassage = keyboardMessage,
-                    Time = keyStruct.Time
-                };
+                KeyData keyData = new KeyData(keyStruct.VirtualKeyCode, keyboardMessage, keyStruct.Time);
 
-                return OnHooked(keyHookEventArgs) ? CallNextHookEx(mKeyboardHook, nCode, wParam, lParam) : new IntPtr(1);
+                return OnHooked(keyData) ? CallNextHookEx(mKeyboardHook, nCode, wParam, lParam) : new IntPtr(1);
             }
             else
                 return CallNextHookEx(mKeyboardHook, nCode, wParam, lParam);

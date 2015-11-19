@@ -1,37 +1,41 @@
 ﻿using System.Collections.Generic;
+using MacroKey.InputData;
 using MacroKey.LowLevelApi.Hook;
 
 namespace MacroKey.LowLevelApi.HookReader
 {
-    public abstract class HookReader<T> : IHookReader<T>
+    public abstract class HookReader : IHookReader
     {
         private IHooker mHooker;
 
         public bool IsRecord { get; private set; } = false;
 
-        private HookEventHandler hookEventHandler;
+        public IList<Input> ReadSequence { get; }
 
-        public IList<T> ReadSequence { get; }
+        private HookEventHandler hookEventHandler;
 
         public HookReader(IHooker hooker)
         {
             mHooker = hooker;
             hookEventHandler = RecordSequence;
-            ReadSequence = new List<T>();
+            ReadSequence = new List<Input>();
         }
 
-        public HookReader(IHooker hooker, IList<T> sequence) : this(hooker)
+        public HookReader(IHooker hooker, IList<Input> sequence) : this(hooker)
         {
             ReadSequence = sequence;
         }
 
-        protected abstract bool RecordSequence(HookEventArgs e);
+        protected virtual bool RecordSequence(Input e)
+        {
+            ReadSequence.Add(e);
+            return true;
+        }
 
         public void StartNewRecord()
         {
-            IsRecord = true;
             Clear();
-            mHooker.Hooked += hookEventHandler;
+            StartRecord();
         }
 
         public void StartRecord()

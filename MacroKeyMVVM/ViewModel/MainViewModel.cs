@@ -9,29 +9,35 @@ using GalaSoft.MvvmLight.CommandWpf;
 using MacroKey.InputData;
 using MacroKey.LowLevelApi;
 using MacroKey.LowLevelApi.Hook;
-using MacroKey.LowLevelApi.HookReader;
 using MacroKey.Machine;
 using MacroKey.Model.Machine;
 using MacroKey.Properties;
+using MacroKeyMVVM.Model.InputData;
+using MacroKeyMVVM.Model.LowLevelApi.HookRead;
 
 namespace MacroKey.ViewModel
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
-        public IHooker mHookerKey { get; }
-        public ISenderInput mSenderKey { get; }
-        public KeyDataEqualityComparer mKeyDataEqualityComparer { get; } = new KeyDataEqualityComparer();
-        public Tree<KeyData> mTreeRoot { get; }
-        public Tree<KeyData> mTreeSequence { get; }
-        public Branch<KeyData> mHotkeyExecuteGUIBranch { get; private set; }
-        public Branch<KeyData> mHotkeyMacrosModeBranch { get; private set; }
-        public ObservableCollection<Macros> MacrosCollection { get; }
+        private HookerMouse mHookerMouse { get; }
+        private SenderInput mSednerInput { get; }
+        private HookerKey mHookerKey { get; }
+
+        private InputEqualityComparer mInputEqualityComparer { get; } = new InputEqualityComparer();
+        private Tree<Input> mTreeRoot { get; }
+        private Tree<Input> mTreeSequence { get; }
+        private Branch<Input> mExecuteGUIBranch { get; set; }
+        private Branch<Input> mMacrosModeBranch { get; set; }
+
+        private DontStuckHookReader mSequenceReader { get; }
+        private DontStuckHookReader mExecuteGUIReader { get; }
+        private DontStuckHookReader mMacrosModeReader { get; }
+        private DontStuckMultiHookReader mMacroReader { get; }
+
         public string MacrosName { get; set; }
+        public ObservableCollection<Macros> MacrosCollection { get; }
+
         public string DelayDefault { get; set; }
-        public HookKeyDataReader SequenceReader { get; }
-        public HookKeyDataDelayReader MacroReader { get; }
-        public HookKeyDataReader ExecuteGUIReader { get; }
-        public HookKeyDataReader MacrosModeReader { get; }
 
         public RelayCommand RecordSequenceCommand { get; }
         public RelayCommand RecordMacroCommand { get; }
@@ -39,8 +45,8 @@ namespace MacroKey.ViewModel
         public RelayCommand CleanRowsSequenceCommand { get; }
         public RelayCommand CleanRowsMacroCommand { get; }
         public RelayCommand CleanRowsMacrosCommand { get; }
-        public RelayCommand<KeyData> DeleteRowSequenceCommand { get; }
-        public RelayCommand<KeyDataDelay> DeleteRowMacroCommand { get; }
+        public RelayCommand<Input> DeleteRowSequenceCommand { get; }
+        public RelayCommand<InputDelay> DeleteRowMacroCommand { get; }
         public RelayCommand<Macros> DeleteRowMacrosCommand { get; }
         public RelayCommand StopRecordExecuteGUICommand { get; }
         public RelayCommand StartRecordExecuteGUICommand { get; }
@@ -49,25 +55,38 @@ namespace MacroKey.ViewModel
         public RelayCommand StopAllRecordCommand { get; }
         public RelayCommand SetDefaultDelayCommand { get; }
 
-        public MainViewModel(IHooker hooker, ISenderInput sender)
-        {
-            mHookerKey = hooker;
-            mSenderKey = sender;
+        public ObservablePropertyCollection<Input> GUICollection { get; }
+        public ObservablePropertyCollection<Input> MacrosModeCollection { get; }
+        public ObservableCollection<Input> SequenceCollection { get; }
+        public ObservableCollection<InputDelay> MacroCollection { get; }
 
-            //if(Settings.Default.Setting == null)
-                Settings.Default.Setting = new AppSettings(mKeyDataEqualityComparer);
+        public MainViewModel()
+        {
+            mHookerKey = new HookerKey();
+            mHookerMouse = new HookerMouse();
+            mSednerInput = new SenderInput();
+
+            mExecuteGUIBranch = new Branch<Input>(mInputEqualityComparer);
+            mMacrosModeBranch = new Branch<Input>(mInputEqualityComparer);
+
+            if (Settings.Default.Setting == null)
+                Settings.Default.Setting = new AppSettings(mInputEqualityComparer);
             AppSettings settings = Settings.Default.Setting;
             mTreeRoot = settings.TreeRoot;
             mTreeSequence = settings.TreeSequence;
-            mHotkeyExecuteGUIBranch = settings.GUIBranch;
-            mHotkeyMacrosModeBranch = settings.MacrosModeBranch;
             MacrosCollection = settings.MacrosCollection;
-            ExecuteGUIReader = new HookKeyDataReader(mHookerKey, new ObservablePropertyCollection<KeyData>(settings.SequenceGUI));
-            MacrosModeReader = new HookKeyDataReader(mHookerKey, new ObservablePropertyCollection<KeyData>(settings.SequenceMacrosMode));
 
-            SequenceReader = new HookKeyDataReader(mHookerKey, settings.Sequence);
-            MacroReader = new HookKeyDataDelayReader(mHookerKey, settings.Macro);
-            settings.Macro.CollectionChanged += ReadMacro_CollectionChanged;
+            GUICollection = settings.SequenceGUI;
+            MacrosModeCollection = settings.SequenceMacrosMode;
+            SequenceCollection = settings.Sequence;
+            MacroCollection = settings.Macro;
+            
+            mSequenceReader = new DontStuckHookReader(mHookerKey, SequenceCollection);
+            ObservableCollection<Input> tempCollection = new ObservableCollection<Input>(MacroCollection.Cast<Input>());
+            tempCollection.CollectionChanged += ReadMacro_CollectionChanged;
+            mMacroReader = new DontStuckMultiHookReader(new List<IHooker> { mHookerKey, mHookerMouse }, tempCollection);
+            mExecuteGUIReader = new DontStuckHookReader(mHookerKey, GUICollection);
+            mMacrosModeReader = new DontStuckHookReader(mHookerKey, MacrosModeCollection);
 
             RecordSequenceCommand = new RelayCommand(RecordSequence);
             RecordMacroCommand = new RelayCommand(RecordMacro);
@@ -75,8 +94,8 @@ namespace MacroKey.ViewModel
             CleanRowsSequenceCommand = new RelayCommand(CleanRowsSequence);
             CleanRowsMacroCommand = new RelayCommand(CleanRowsMacro);
             CleanRowsMacrosCommand = new RelayCommand(CleanRowsMacros);
-            DeleteRowSequenceCommand = new RelayCommand<KeyData>(DeleteRowSequence);
-            DeleteRowMacroCommand = new RelayCommand<KeyDataDelay>(DeleteRowMacro);
+            DeleteRowSequenceCommand = new RelayCommand<Input>(DeleteRowSequence);
+            DeleteRowMacroCommand = new RelayCommand<InputDelay>(DeleteRowMacro);
             DeleteRowMacrosCommand = new RelayCommand<Macros>(DeleteRowMacros);
             StopRecordExecuteGUICommand = new RelayCommand(StopRecordExecuteGUI);
             StartRecordExecuteGUICommand = new RelayCommand(StartRecordExecuteGUI);
@@ -87,13 +106,22 @@ namespace MacroKey.ViewModel
 
             mHookerKey.SetHook();
 
-            StateWalker<KeyData> machineWalker = new StateWalker<KeyData>(mTreeRoot);
-            mHookerKey.Hooked += (obj) =>
+            StateWalker<Input> machineWalker = new StateWalker<Input>(mTreeRoot);
+            mHookerKey.Hooked += (arg) =>
             {
-                var arg = (KeyHookEventArgs)obj;
-                State<KeyData> currentState = machineWalker.WalkStates(new KeyData(arg.VirtualKeyCode, arg.KeyMassage, arg.Time));
-                return currentState is FunctionState<KeyData> ? (bool)((FunctionState<KeyData>)currentState).ExecuteFunction() : true;
+                State<Input> currentState = machineWalker.WalkStates(arg);
+                return currentState is FunctionState<Input> ? (bool)((FunctionState<Input>)currentState).ExecuteFunction() : true;
             };
+        }
+
+        private void ReadMacro_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+            {
+                int value = int.Parse(DelayDefault);
+                foreach (var item in e.NewItems)
+                    MacroCollection.Add(new InputDelay((Input)item, value));
+            }
         }
 
         public override void Cleanup()
@@ -106,76 +134,71 @@ namespace MacroKey.ViewModel
 
         private void StopAllRecord()
         {
-            SequenceReader.StopRecord();
-            MacroReader.StopRecord();
-            MacrosModeReader.StopRecord();
-            ExecuteGUIReader.StopRecord();
+            mSequenceReader.StopRecord();
+            mExecuteGUIReader.StopRecord();
+            mMacroReader.StopRecord();
         }
 
         public void RecordSequence()
         {
-            if (!SequenceReader.IsRecord)
+            if (!mSequenceReader.IsRecord)
             {
                 StopAllRecord();
-                SequenceReader.StartRecord();
+                mSequenceReader.StartRecord();
             }
             else
                 StopAllRecord();
-
         }
 
         public void RecordMacro()
         {
-            if (!MacroReader.IsRecord)
+            if (!mMacroReader.IsRecord)
             {
                 StopAllRecord();
-                MacroReader.StartRecord();
+                mMacroReader.StartRecord();
             }
             else
                 StopAllRecord();
-
         }
-
-        delegate bool FunctionState(object arg);
 
         public void CreateMacros()
         {
             StopAllRecord();
 
-            if (SequenceReader.ReadSequence.Count == 0)
+            if (SequenceCollection.Count == 0)
             {
                 MessageBox.Show("Sequence is empty", "Error", MessageBoxButton.OK);
                 return;
             }
-            if (MacroReader.ReadSequence.Count == 0)
+            if (MacroCollection.Count == 0)
             {
                 MessageBox.Show("Macros is empty", "Error", MessageBoxButton.OK);
                 return;
             }
-            if (MacrosModeReader.ReadSequence.Count == 0)
+            if (MacrosModeCollection.Count == 0)
             {
                 MessageBox.Show("Macros mode hotkey is empty", "Error", MessageBoxButton.OK);
                 return;
             }
 
-            ReturnFalseFuctionState<KeyData> functionState = new ReturnFalseFuctionState<KeyData>(mKeyDataEqualityComparer);
-            IEnumerable<ReturnFalseFuctionState<KeyData>> functionStateEnum = Enumerable.Repeat(functionState, SequenceReader.ReadSequence.Count);
-            Branch<KeyData> branchSequence = new Branch<KeyData>(SequenceReader.ReadSequence, functionStateEnum, mKeyDataEqualityComparer);
-            branchSequence.SetFunctionBranch(new SendKeyFuctionState<KeyData>(mSenderKey, MacroReader.ReadSequence.ToArray(), mKeyDataEqualityComparer));
+            ReturnFalseFuctionState<Input> functionState = new ReturnFalseFuctionState<Input>(mInputEqualityComparer);
+            IEnumerable<ReturnFalseFuctionState<Input>> functionStateEnum = Enumerable.Repeat(functionState, SequenceCollection.Count);
+            Branch<Input> branchSequence = new Branch<Input>(SequenceCollection, functionStateEnum, mInputEqualityComparer);
+            branchSequence.SetFunctionBranch(new SendKeyDelayFuctionState<Input>(mSednerInput, MacroCollection.ToArray(), mInputEqualityComparer));
 
             mTreeSequence.AddState(branchSequence);
 
-            Macros macro = new Macros(MacrosName, SequenceReader.ReadSequence, MacroReader.ReadSequence);
+            Macros macro = new Macros(MacrosName, SequenceCollection, MacroCollection.Select(item => item.Data));
             MacrosCollection.Add(macro);
 
             MacrosName = string.Empty;
-            SequenceReader.Clear();
-            MacroReader.Clear();
+            SequenceCollection.Clear();
+            MacroCollection.Clear();
         }
 
-        public void CleanRowsSequence() => SequenceReader.Clear();
+        public void CleanRowsSequence() => SequenceCollection.Clear();
 
-        public void CleanRowsMacro() => MacroReader.Clear();
+        public void CleanRowsMacro() => MacroCollection.Clear();
 
         public void CleanRowsMacros()
         {
@@ -183,72 +206,57 @@ namespace MacroKey.ViewModel
             MacrosCollection.Clear();
         }
 
-        public void DeleteRowSequence(KeyData param) => SequenceReader.ReadSequence.Remove(param);
+        public void DeleteRowSequence(Input param) => SequenceCollection.Remove(param);
 
-        public void DeleteRowMacro(KeyDataDelay param) => MacroReader.ReadSequence.Remove(param);
+        public void DeleteRowMacro(InputDelay param) => MacroCollection.Remove(param);
 
         public void DeleteRowMacros(Macros param)
         {
             int index = MacrosCollection.IndexOf(param);
             mTreeSequence.RemoveAtState(index);
-
             MacrosCollection.Remove(param);
         }
 
         public void StopRecordExecuteGUI()
         {
-            ExecuteGUIReader.StopRecord();
-            if (ExecuteGUIReader.ReadSequence.Count == 0)
+            mExecuteGUIReader.StopRecord();
+            if (GUICollection.Count == 0)
                 return;
 
-            mHotkeyExecuteGUIBranch = new Branch<KeyData>(ExecuteGUIReader.ReadSequence, mKeyDataEqualityComparer);
-            Settings.Default.Setting.GUIBranch = mHotkeyExecuteGUIBranch;
-            Settings.Default.Setting.SequenceGUI = ExecuteGUIReader.ReadSequence.ToList();
-            mTreeRoot.SetState(new List<Branch<KeyData>> { mHotkeyExecuteGUIBranch, mHotkeyMacrosModeBranch });
+            mExecuteGUIBranch = new Branch<Input>(GUICollection, mInputEqualityComparer);
+            mTreeRoot.SetState(new List<Branch<Input>> { mExecuteGUIBranch, mMacrosModeBranch });
         }
 
         public void StartRecordExecuteGUI()
         {
             StopAllRecord();
-            ExecuteGUIReader.StartNewRecord();
+            mExecuteGUIReader.StartNewRecord();
         }
 
         public void StopRecordMacrosMode()
         {
-            MacrosModeReader.StopRecord();
-            if (MacrosModeReader.ReadSequence.Count == 0)
+            mMacrosModeReader.StopRecord();
+            if (MacrosModeCollection.Count == 0)
                 return;
 
-            mHotkeyMacrosModeBranch = new Branch<KeyData>(MacrosModeReader.ReadSequence, mKeyDataEqualityComparer);
-            Settings.Default.Setting.MacrosModeBranch = mHotkeyMacrosModeBranch;
-            Settings.Default.Setting.SequenceMacrosMode = MacrosModeReader.ReadSequence.ToList();
-            mHotkeyMacrosModeBranch.AddState(mTreeSequence);
-            mTreeRoot.SetState(new List<Branch<KeyData>> { mHotkeyExecuteGUIBranch, mHotkeyMacrosModeBranch });
+            mMacrosModeBranch = new Branch<Input>(MacrosModeCollection, mInputEqualityComparer);
+            mMacrosModeBranch.AddState(mTreeSequence);
+            mTreeRoot.SetState(new List<Branch<Input>> { mExecuteGUIBranch, mMacrosModeBranch });
         }
 
         public void StartRecordMacrosMode()
         {
             StopAllRecord();
-            MacrosModeReader.StartNewRecord();
+            mMacrosModeReader.StartNewRecord();
         }
 
         public void SetDefaultDelay()
         {
             int value = int.Parse(DelayDefault);
-            for (int i = 0; i < MacroReader.ReadSequence.Count; i++)
+            for (int i = 0; i < MacroCollection.Count; i++)
             {
-                var item = MacroReader.ReadSequence[i];
-                MacroReader.ReadSequence[i] = new KeyDataDelay(item.VirtualKeyCode, (int)item.Message, item.Time, value);
-            }
-        }
-
-        private void ReadMacro_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.NewItems != null)
-            {
-                int value = int.Parse(DelayDefault);
-                foreach (var item in e.NewItems)
-                    ((KeyDataDelay)item).Delay = value;
+                InputDelay inputDelay = MacroCollection[i];
+                MacroCollection[i] = new InputDelay(inputDelay.Data, value);
             }
         }
     }

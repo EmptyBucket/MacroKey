@@ -13,7 +13,8 @@ namespace MacroKey.Converters
             if (targetType != typeof(string))
                 throw new InvalidOperationException("The target must be a String");
 
-            return KeyInterop.KeyFromVirtualKey((short)value).ToString();
+            var input = KeyInterop.KeyFromVirtualKey((int)value);
+            return input.ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -8,21 +8,21 @@ namespace MacroKey
     public class Macros
     {
         public string Name { get; }
-        public ObservablePropertyCollection<KeyDataDelay> Macro { get; }
-        public ObservablePropertyCollection<KeyData> Sequence { get; }
+        public IEnumerable<Input> Macro { get; }
+        public IEnumerable<Input> Sequence { get; }
 
         public Macros()
         {
             Name = string.Empty;
-            Sequence = new ObservablePropertyCollection<KeyData>();
-            Macro = new ObservablePropertyCollection<KeyDataDelay>();
+            Sequence = new List<Input>();
+            Macro = new List<Input>();
         }
 
-        public Macros(string name, IEnumerable<KeyData> sequence, IEnumerable<KeyDataDelay> macro)
+        public Macros(string name, IEnumerable<Input> sequence, IEnumerable<Input> macro)
         {
             Name = name;
-            Sequence = new ObservablePropertyCollection<KeyData>(sequence);
-            Macro = new ObservablePropertyCollection<KeyDataDelay>(macro);
+            Sequence = new List<Input>(sequence);
+            Macro = new List<Input>(macro);
         }
     }
 }

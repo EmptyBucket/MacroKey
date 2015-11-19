@@ -36,11 +36,11 @@
           <RowDefinition Height="9*"/>
         </Grid.RowDefinitions>
         <TextBlock Style="{StaticResource TextBlockHeaderStyle}" Text="Sequence"/>
-        <ListView x:Name="listSequenceKey" Grid.Row="2" ItemsSource="{Binding Path=SequenceReader.ReadSequence}">
+        <ListView x:Name="listSequenceKey" Grid.Row="2" ItemsSource="{Binding Path=SequenceCollection}">
           <ListView.View>
             <GridView>
               <GridView.Columns>
-                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding VirtualKeyCode, Converter={StaticResource virtualKeyCodeToStringConverter}}"/>
+                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding VirtualCode, Converter={StaticResource virtualKeyCodeToStringConverter}}"/>
                 <GridViewColumn Header="State">
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
@@ -73,15 +73,15 @@
           <RowDefinition Height="9*"/>
         </Grid.RowDefinitions>
         <TextBlock Style="{StaticResource TextBlockHeaderStyle}" Grid.Row="0" Text="Macros"/>
-        <ListView x:Name="listMacroKey" Grid.Row="3" ItemsSource="{Binding Path=MacroReader.ReadSequence}">
+        <ListView x:Name="listMacroKey" Grid.Row="3" ItemsSource="{Binding Path=MacroCollection}">
           <ListView.View>
             <GridView>
               <GridView.Columns>
-                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding VirtualKeyCode, Converter={StaticResource virtualKeyCodeToStringConverter}}"/>
+                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding Data.VirtualCode, Converter={StaticResource virtualKeyCodeToStringConverter}}"/>
                 <GridViewColumn Header="State">
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
-                      <ContentControl Content="{Binding Message, Converter={StaticResource keyMessageToIconConverter}}"/>
+                      <ContentControl Content="{Binding Data.Message, Converter={StaticResource keyMessageToIconConverter}}"/>
                     </DataTemplate>
                   </GridViewColumn.CellTemplate>
                 </GridViewColumn>
@@ -91,7 +91,7 @@
                       <ContentControl Content="{StaticResource IconTime}" Height="15" Width="15"/>
                       <TextBox Style="{StaticResource TextBoxLineStyle}" Text="{Binding DelayDefault, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged, FallbackValue=20}" GotFocus="textBox_GotFocus" PreviewTextInput="delay_PreviewTextInput" PreviewLostKeyboardFocus="delay_PreviewLostKeyboardFocus">
                         <i:Interaction.Triggers>
-                          <i:EventTrigger EventName="PropertyChanged">
+                          <i:EventTrigger EventName="TextChanged">
                             <i:InvokeCommandAction Command="{Binding SetDefaultDelayCommand}"/>
                           </i:EventTrigger>
                           <i:EventTrigger EventName="GotFocus">
@@ -144,7 +144,7 @@
         <StackPanel Grid.Row="1" Margin="5">
           <WrapPanel>
             <TextBlock Text="Execute GUI Hotkey" Margin="2"/>
-            <TextBox x:Name="executeGUIHotkeyBox" BorderBrush="Gray" Margin="12,2,2,2" Background="Transparent" IsReadOnly="True" MinWidth="20" Text="{Binding Path=ExecuteGUIReader.ReadSequence.Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}" GotFocus="textBox_GotFocus">
+            <TextBox x:Name="executeGUIHotkeyBox" BorderBrush="Gray" Margin="12,2,2,2" Background="Transparent" IsReadOnly="True" MinWidth="20" Text="{Binding Path=GUICollection.Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}" GotFocus="textBox_GotFocus">
               <i:Interaction.Triggers>
                 <i:EventTrigger EventName="LostFocus" >
                   <i:InvokeCommandAction Command="{Binding StopRecordExecuteGUICommand}" />
@@ -157,7 +157,7 @@
           </WrapPanel>
           <WrapPanel>
             <TextBlock Text="Macros Mode Hotkey" Margin="2"/>
-            <TextBox x:Name="macrosModHotkeyBox" BorderBrush="Gray" Margin="2,2,2,2" Background="Transparent" IsReadOnly="True" MinWidth="20" Text="{Binding Path=MacrosModeReader.ReadSequence.Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}" GotFocus="textBox_GotFocus">
+            <TextBox x:Name="macrosModHotkeyBox" BorderBrush="Gray" Margin="2,2,2,2" Background="Transparent" IsReadOnly="True" MinWidth="20" Text="{Binding Path=MacrosModeCollection.Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}" GotFocus="textBox_GotFocus">
               <i:Interaction.Triggers>
                 <i:EventTrigger EventName="LostFocus" >
                   <i:InvokeCommandAction Command="{Binding StopRecordMacrosModeCommand}" />

@@ -18,12 +18,12 @@ namespace MacroKey.Converters
             if (targetType != typeof(string))
                 throw new InvalidOperationException("The target must be a String");
 
-            Func<KeyData, string> getStr = keyData =>
+            Func<Input, string> getStr = input =>
             {
-                string keyValue = KeyInterop.KeyFromVirtualKey(keyData.VirtualKeyCode).ToString();
-                return $"[{keyValue}{(keyData.Message == KeyData.KeyMessage.WM_KEYDOWM || keyData.Message == KeyData.KeyMessage.WM_SYSKEYDOWN ? "\u25BC" : "\u25B2")}]";
+                string keyValue = KeyInterop.KeyFromVirtualKey(input.VirtualCode).ToString();
+                return $"[{keyValue}{(input.Message == (int)KeyMessage.WM_KEYDOWM || input.Message == (int)KeyMessage.WM_SYSKEYDOWN ? "\u25BC" : "\u25B2")}]";
             };
-            return string.Join("", ((IEnumerable<KeyData>)value).Select(getStr));
+            return string.Join("", ((IEnumerable<Input>)value).Select(getStr));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
