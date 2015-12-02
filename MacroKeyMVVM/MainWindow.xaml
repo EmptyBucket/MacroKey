@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:autoScroll="clr-namespace:MacroKey.ListAutoScroll"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:ignore="http://www.galasoft.ch/ignore"
         mc:Ignorable="d ignore"
@@ -37,10 +38,13 @@
         </Grid.RowDefinitions>
         <TextBlock Style="{StaticResource TextBlockHeaderStyle}" Text="Sequence"/>
         <ListView x:Name="listSequenceKey" Grid.Row="2" ItemsSource="{Binding Path=SequenceCollection}">
+          <i:Interaction.Behaviors>
+            <autoScroll:AutoScrollToLastItemBehavior/>
+          </i:Interaction.Behaviors>
           <ListView.View>
             <GridView>
               <GridView.Columns>
-                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding VirtualCode, Converter={StaticResource virtualKeyCodeToStringConverter}}"/>
+                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding VirtualCode, Converter={StaticResource codeToStringConverter}}"/>
                 <GridViewColumn Header="State">
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
@@ -74,10 +78,13 @@
         </Grid.RowDefinitions>
         <TextBlock Style="{StaticResource TextBlockHeaderStyle}" Grid.Row="0" Text="Macros"/>
         <ListView x:Name="listMacroKey" Grid.Row="3" ItemsSource="{Binding Path=MacroCollection}">
+          <i:Interaction.Behaviors>
+            <autoScroll:AutoScrollToLastItemBehavior/>
+          </i:Interaction.Behaviors>
           <ListView.View>
             <GridView>
               <GridView.Columns>
-                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding Data.VirtualCode, Converter={StaticResource virtualKeyCodeToStringConverter}}"/>
+                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding Data.VirtualCode, Converter={StaticResource codeToStringConverter}}"/>
                 <GridViewColumn Header="State">
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
@@ -186,6 +193,9 @@
           </TextBox>
         </Grid>
         <ListView x:Name="listMacros" Grid.Row="5" ItemsSource="{Binding Path=MacrosCollection}">
+          <i:Interaction.Behaviors>
+            <autoScroll:AutoScrollToLastItemBehavior/>
+          </i:Interaction.Behaviors>
           <ListView.View>
             <GridView>
               <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>

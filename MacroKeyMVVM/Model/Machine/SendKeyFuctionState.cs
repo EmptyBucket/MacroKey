@@ -2,20 +2,22 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MacroKey.InputData;
-using MacroKey.LowLevelApi;
 using MacroKey.Machine;
 using MacroKeyMVVM.Model.InputData;
+using MacroKeyMVVM.Model.LowLevelApi.Sender;
 
 namespace MacroKey.Model.Machine
 {
     [Serializable]
     public class SendKeyDelayFuctionState<TypeTransition> : FunctionState<TypeTransition>
     {
-        private ISenderInput mSender { get; }
+        private readonly KeySenderInput mKeySender;
+        private readonly MouseSenderInput mMouseSender;
 
-        public SendKeyDelayFuctionState(ISenderInput sender, IEnumerable<InputDelay> arg, IEqualityComparer<TypeTransition> equalityComparer = null) : base(arg, equalityComparer)
+        public SendKeyDelayFuctionState(KeySenderInput keySender, MouseSenderInput mouseSender, IEnumerable<InputDelay> arg, IEqualityComparer<TypeTransition> equalityComparer = null) : base(arg, equalityComparer)
         {
-            mSender = sender;
+            mKeySender = keySender;
+            mMouseSender = mouseSender;
         }
 
         protected override object Function(object arg)
@@ -26,7 +28,11 @@ namespace MacroKey.Model.Machine
                 foreach (var item in inputDelay)
                 {
                     Task.WaitAll(Task.Delay(item.Delay));
-                    mSender.SendInput(new Input[] { item.Data });
+                    Input input = item.Data;
+                    if (input is KeyData)
+                        mKeySender.SendInput(new Input[] { input });
+                    else
+                        mMouseSender.SendInput(new Input[] { input });
                 }
             });
             return false;

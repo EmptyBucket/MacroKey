@@ -1,17 +1,16 @@
 ﻿using System.Collections.Generic;
 using MacroKey.InputData;
 using MacroKey.LowLevelApi.Hook;
-using MacroKey.LowLevelApi.HookReader;
 
 namespace MacroKeyMVVM.Model.LowLevelApi.HookRead
 {
-    public class DontStuckHookReader : HookReader
+    public class MultiHookNotRepeatReader : MultiHookReader
     {
-        private Input mPrewInput = new KeyData(0, 0, 0);
+        private Input mPrewInput = new KeyData(0, 0);
 
-        public DontStuckHookReader(IHooker hooker) : base(hooker) { }
+        public MultiHookNotRepeatReader(IEnumerable<IHooker> hookerEnum) : base(hookerEnum) { }
 
-        public DontStuckHookReader(IHooker hooker, IList<Input> sequence) : base(hooker, sequence) { }
+        public MultiHookNotRepeatReader(IEnumerable<IHooker> hookerEnum, IList<Input> sequence) : base(hookerEnum, sequence) { }
 
         protected override bool RecordSequence(Input e)
         {

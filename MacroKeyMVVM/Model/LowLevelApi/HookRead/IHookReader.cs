@@ -3,7 +3,7 @@ using MacroKey.InputData;
 
 namespace MacroKey.LowLevelApi.HookReader
 {
-    interface IHookReader
+    public interface IHookReader
     {
         IList<Input> ReadSequence { get; }
 

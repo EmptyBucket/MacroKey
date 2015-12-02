@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
-using System.Windows.Input;
 using MacroKey.InputData;
+using MacroKeyMVVM.Model.InputData;
 
 namespace MacroKey.Converters
 {
     [ValueConversion(typeof(IEnumerable<KeyData>), typeof(string))]
     public class KeyDataEnumerableToStringConverter : IValueConverter
     {
-        private VirtualKeyCodeToStringConverter virtualKeyCodeToStringConverter = new VirtualKeyCodeToStringConverter();
+        private KeyCodeToStringConverter virtualKeyCodeToStringConverter = new KeyCodeToStringConverter();
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -20,8 +20,8 @@ namespace MacroKey.Converters
 
             Func<Input, string> getStr = input =>
             {
-                string keyValue = KeyInterop.KeyFromVirtualKey(input.VirtualCode).ToString();
-                return $"[{keyValue}{(input.Message == (int)KeyMessage.WM_KEYDOWM || input.Message == (int)KeyMessage.WM_SYSKEYDOWN ? "\u25BC" : "\u25B2")}]";
+                string keyValue = new CodeToStringConverter().Convert(input.VirtualCode, typeof(string), null, null).ToString();
+                return $"[{keyValue}{(input.Message == InputMessage.WM_KEYDOWM || input.Message == InputMessage.WM_SYSKEYDOWN ? "\u25BC" : "\u25B2")}]";
             };
             return string.Join("", ((IEnumerable<Input>)value).Select(getStr));
         }

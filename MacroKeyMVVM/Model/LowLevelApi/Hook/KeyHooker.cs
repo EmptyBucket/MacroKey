@@ -4,7 +4,7 @@ using MacroKey.InputData;
 
 namespace MacroKey.LowLevelApi.Hook
 {
-    public class HookerKey : Hooker
+    public class KeyHooker : Hooker
     {
         [StructLayout(LayoutKind.Sequential)]
         private struct KeyHookedStruct
@@ -28,7 +28,7 @@ namespace MacroKey.LowLevelApi.Hook
                 KeyHookedStruct keyStruct = (KeyHookedStruct)Marshal.PtrToStructure(lParam, typeof(KeyHookedStruct));
                 int keyboardMessage = (int)wParam;
 
-                KeyData keyData = new KeyData(keyStruct.VirtualKeyCode, keyboardMessage, keyStruct.Time);
+                KeyData keyData = new KeyData(keyStruct.VirtualKeyCode, keyboardMessage);
 
                 return OnHooked(keyData) ? CallNextHookEx(mKeyboardHook, nCode, wParam, lParam) : new IntPtr(1);
             }

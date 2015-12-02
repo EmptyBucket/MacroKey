@@ -8,10 +8,10 @@
     <ResourceDictionary Source="/Skins/ButtonSkin.xaml"/>
     <ResourceDictionary Source="/Skins/TextBlockHeaderSkin.xaml"/>
     <ResourceDictionary Source="/Skins/TextBoxLineSkin.xaml"/>
-    <ResourceDictionary xmlns:local="clr-namespace:MacroKey.Converters">
-      <local:KeyDataEnumerableToStringConverter x:Key="keyDataCollectionToStringConverter"/>
-      <local:VirtualKeyCodeToStringConverter x:Key="virtualKeyCodeToStringConverter"/>
-      <local:KeyMessageToIconConverter x:Key="keyMessageToIconConverter"/>
+    <ResourceDictionary xmlns:converters="clr-namespace:MacroKey.Converters">
+      <converters:KeyDataEnumerableToStringConverter x:Key="keyDataCollectionToStringConverter"/>
+      <converters:CodeToStringConverter x:Key="codeToStringConverter"/>
+      <converters:InputMessageToIconConverter x:Key="keyMessageToIconConverter"/>
     </ResourceDictionary>
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

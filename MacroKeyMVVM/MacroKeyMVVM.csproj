@@ -25,6 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -80,25 +81,34 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppSettings.cs" />
+    <Compile Include="ListAutoScroll\AutoScrollToLastItemBehavior.cs" />
+    <Compile Include="Converters\CodeToStringConverter.cs" />
+    <Compile Include="Converters\MouseCodeToStringConverter.cs" />
     <Compile Include="Macros.cs" />
     <Compile Include="Model\InputData\Input.cs" />
     <Compile Include="Model\InputData\InputDelay.cs" />
+    <Compile Include="Model\InputData\ICode.cs" />
+    <Compile Include="Model\InputData\KeyCode.cs" />
     <Compile Include="Model\InputData\KeyData.cs" />
     <Compile Include="Converters\KeyDataEnumerableToStringConverter.cs" />
     <Compile Include="Model\InputData\InputEqualityComparer.cs" />
-    <Compile Include="Converters\KeyMessageToIconConverter.cs" />
-    <Compile Include="Converters\VirtualKeyCodeToStringConverter.cs" />
+    <Compile Include="Converters\InputMessageToIconConverter.cs" />
+    <Compile Include="Converters\KeyCodeToStringConverter.cs" />
+    <Compile Include="Model\InputData\InputMessage.cs" />
+    <Compile Include="Model\InputData\MouseCode.cs" />
     <Compile Include="Model\InputData\MouseData.cs" />
-    <Compile Include="Model\LowLevelApi\HookRead\DontStuckHookReader.cs" />
-    <Compile Include="Model\LowLevelApi\HookRead\DontStuckMultiHookReader.cs" />
+    <Compile Include="Model\LowLevelApi\HookRead\HookNotRepeatReader.cs" />
+    <Compile Include="Model\LowLevelApi\HookRead\MultiHookNotRepeatReader.cs" />
     <Compile Include="Model\LowLevelApi\HookRead\HookReader.cs" />
     <Compile Include="Model\LowLevelApi\HookRead\IHookReader.cs" />
     <Compile Include="Model\LowLevelApi\HookRead\MultiHookReader.cs" />
     <Compile Include="Model\LowLevelApi\Hook\Hooker.cs" />
-    <Compile Include="Model\LowLevelApi\Hook\HookerKey.cs" />
-    <Compile Include="Model\LowLevelApi\Hook\HookerMouse.cs" />
+    <Compile Include="Model\LowLevelApi\Hook\KeyHooker.cs" />
+    <Compile Include="Model\LowLevelApi\Hook\MouseHooker.cs" />
     <Compile Include="Model\LowLevelApi\Hook\IHooker.cs" />
     <Compile Include="Model\LowLevelApi\Sender\ISenderInput.cs" />
+    <Compile Include="Model\LowLevelApi\Sender\KeySenderInput.cs" />
+    <Compile Include="Model\LowLevelApi\Sender\MouseSenderInput.cs" />
     <Compile Include="Model\LowLevelApi\Sender\SenderInput.cs" />
     <Compile Include="Model\Machine\Branch.cs" />
     <Compile Include="Model\Machine\FunctionState.cs" />
@@ -112,7 +122,7 @@
     <Compile Include="ObservablePropertyCollection.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
-    <Compile Include="ViewModel\ViewModelNinjectModule.cs" />
+    <Compile Include="ViewModel\NinjectModule.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

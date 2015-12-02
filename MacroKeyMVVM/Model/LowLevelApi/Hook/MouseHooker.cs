@@ -5,13 +5,13 @@ using MacroKeyMVVM.Model.InputData;
 
 namespace MacroKey.LowLevelApi.Hook
 {
-    public class HookerMouse : Hooker
+    public class MouseHooker : Hooker
     {
         [StructLayout(LayoutKind.Sequential)]
         private struct POINT
         {
-            public long x;
-            public long y;
+            public int x;
+            public int y;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -35,9 +35,14 @@ namespace MacroKey.LowLevelApi.Hook
                 MouseHookedStruck mouseHookedStruct = (MouseHookedStruck)Marshal.PtrToStructure(lParam, typeof(MouseHookedStruck));
                 int mouseMessage = (int)wParam;
 
-                MouseData mouseData = new MouseData(new Point(mouseHookedStruct.pt.x, mouseHookedStruct.pt.y), mouseHookedStruct.mouseData, mouseMessage, mouseHookedStruct.time);
+                if (mouseMessage == 0x0200)
+                    return CallNextHookEx(mMouseHook, nCode, wParam, lParam);
+                else
+                {
+                    MouseData mouseData = new MouseData(new Point(mouseHookedStruct.pt.x, mouseHookedStruct.pt.y), mouseHookedStruct.mouseData, mouseMessage);
 
-                return OnHooked(mouseData) ? CallNextHookEx(mMouseHook, nCode, wParam, lParam) : new IntPtr(1);
+                    return OnHooked(mouseData) ? CallNextHookEx(mMouseHook, nCode, wParam, lParam) : new IntPtr(1);
+                }
             }
             else
                 return CallNextHookEx(mMouseHook, nCode, wParam, lParam);

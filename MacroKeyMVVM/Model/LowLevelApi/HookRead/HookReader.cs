@@ -4,7 +4,7 @@ using MacroKey.LowLevelApi.Hook;
 
 namespace MacroKey.LowLevelApi.HookReader
 {
-    public abstract class HookReader : IHookReader
+    public class HookReader : IHookReader
     {
         private IHooker mHooker;
 
