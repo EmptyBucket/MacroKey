@@ -3,11 +3,11 @@
 namespace MacroKeyMVVM.Model.InputData
 {
     [Serializable]
-    public struct KeyCode : ICode
+    public struct KeyboardCode : ICode
     {
         public int Code { get; }
 
-        public KeyCode(int keyCode)
+        public KeyboardCode(int keyCode)
         {
             Code = keyCode;
         }

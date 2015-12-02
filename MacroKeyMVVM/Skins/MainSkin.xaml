@@ -11,7 +11,7 @@
     <ResourceDictionary xmlns:converters="clr-namespace:MacroKey.Converters">
       <converters:KeyDataEnumerableToStringConverter x:Key="keyDataCollectionToStringConverter"/>
       <converters:CodeToStringConverter x:Key="codeToStringConverter"/>
-      <converters:InputMessageToIconConverter x:Key="keyMessageToIconConverter"/>
+      <converters:StateToIconConverter x:Key="stateToIconConverter"/>
     </ResourceDictionary>
   </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

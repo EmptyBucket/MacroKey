@@ -6,15 +6,15 @@ namespace MacroKeyMVVM.Model.LowLevelApi.HookRead
 {
     public class MultiHookNotRepeatReader : MultiHookReader
     {
-        private Input mPrewInput = new KeyData(0, 0);
+        private IInput mPrewInput = new KeyboardData(0, 0);
 
         public MultiHookNotRepeatReader(IEnumerable<IHooker> hookerEnum) : base(hookerEnum) { }
 
-        public MultiHookNotRepeatReader(IEnumerable<IHooker> hookerEnum, IList<Input> sequence) : base(hookerEnum, sequence) { }
+        public MultiHookNotRepeatReader(IEnumerable<IHooker> hookerEnum, IList<IInput> sequence) : base(hookerEnum, sequence) { }
 
-        protected override bool RecordSequence(Input e)
+        protected override bool RecordSequence(IInput e)
         {
-            if (mPrewInput.VirtualCode != e.VirtualCode && mPrewInput.Message != e.Message)
+            if (mPrewInput.Key != e.Key && mPrewInput.State != e.State)
                 ReadSequence.Add(e);
             return true;
         }

@@ -5,7 +5,7 @@ namespace MacroKey.LowLevelApi.HookReader
 {
     public interface IHookReader
     {
-        IList<Input> ReadSequence { get; }
+        IList<IInput> ReadSequence { get; }
 
         bool IsRecord { get; }
 

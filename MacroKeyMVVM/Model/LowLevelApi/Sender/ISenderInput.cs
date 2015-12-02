@@ -5,6 +5,6 @@ namespace MacroKey.LowLevelApi
 {
     public interface ISenderInput
     {
-        void SendInput(IEnumerable<Input> input);
+        void SendInput(IEnumerable<IInput> input);
     }
 }

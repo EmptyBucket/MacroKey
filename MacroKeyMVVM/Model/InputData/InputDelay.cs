@@ -6,11 +6,11 @@ namespace MacroKeyMVVM.Model.InputData
     [Serializable]
     public class InputDelay
     {
-        public Input Data { get; }
+        public IInput Data { get; }
 
         public int Delay { get; set; }
 
-        public InputDelay(Input input, int delay)
+        public InputDelay(IInput input, int delay)
         {
             Data = input;
             Delay = delay;

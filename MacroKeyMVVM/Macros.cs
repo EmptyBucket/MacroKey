@@ -8,21 +8,21 @@ namespace MacroKey
     public class Macros
     {
         public string Name { get; }
-        public IEnumerable<Input> Macro { get; }
-        public IEnumerable<Input> Sequence { get; }
+        public IEnumerable<IInput> Macro { get; }
+        public IEnumerable<IInput> Sequence { get; }
 
         public Macros()
         {
             Name = string.Empty;
-            Sequence = new List<Input>();
-            Macro = new List<Input>();
+            Sequence = new List<IInput>();
+            Macro = new List<IInput>();
         }
 
-        public Macros(string name, IEnumerable<Input> sequence, IEnumerable<Input> macro)
+        public Macros(string name, IEnumerable<IInput> sequence, IEnumerable<IInput> macro)
         {
             Name = name;
-            Sequence = new List<Input>(sequence);
-            Macro = new List<Input>(macro);
+            Sequence = new List<IInput>(sequence);
+            Macro = new List<IInput>(macro);
         }
     }
 }

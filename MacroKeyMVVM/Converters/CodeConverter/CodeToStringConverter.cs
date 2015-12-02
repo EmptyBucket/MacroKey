@@ -11,7 +11,7 @@ namespace MacroKey.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             IValueConverter converter;
-            if (value is KeyCode)
+            if (value is KeyboardCode)
                 converter = new KeyCodeToStringConverter();
             else
                 converter = new MouseCodeToStringConverter();

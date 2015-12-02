@@ -1,11 +1,23 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using MacroKey.InputData;
+using MacroKeyMVVM.Model.InputData.Keyboard;
 
 namespace MacroKey.LowLevelApi.Hook
 {
     public class KeyHooker : Hooker
     {
+        private enum KeyMessage
+        {
+            WM_KEYDOWM = 0x100,
+            WM_KEYUP = 0x101,
+            WM_CHAR = 0x102,
+            WM_DEADCHAR = 0x103,
+            WM_SYSKEYDOWN = 0x104,
+            WM_SYSKEYUP = 0x105,
+            WM_SYSCHAR = 0x0106,
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         private struct KeyHookedStruct
         {
@@ -26,9 +38,28 @@ namespace MacroKey.LowLevelApi.Hook
             if (nCode >= 0)
             {
                 KeyHookedStruct keyStruct = (KeyHookedStruct)Marshal.PtrToStructure(lParam, typeof(KeyHookedStruct));
-                int keyboardMessage = (int)wParam;
+                KeyMessage keyboardMessage = (KeyMessage)wParam;
 
-                KeyData keyData = new KeyData(keyStruct.VirtualKeyCode, keyboardMessage);
+                KeyStates state;
+                switch (keyboardMessage)
+                {
+                    case KeyMessage.WM_KEYDOWM:
+                    case KeyMessage.WM_SYSKEYDOWN:
+                        state = KeyStates.KeyDown;
+                        break;
+                    case KeyMessage.WM_KEYUP:
+                    case KeyMessage.WM_SYSKEYUP:
+                        state = KeyStates.KeyUp;
+                        break;
+                    case KeyMessage.WM_CHAR:
+                    case KeyMessage.WM_DEADCHAR:
+                    case KeyMessage.WM_SYSCHAR:
+                    default:
+                        state = KeyStates.KeyQuest;
+                        break;
+                }
+
+                KeyboardData keyData = new KeyboardData(keyStruct.VirtualKeyCode, state);
 
                 return OnHooked(keyData) ? CallNextHookEx(mKeyboardHook, nCode, wParam, lParam) : new IntPtr(1);
             }

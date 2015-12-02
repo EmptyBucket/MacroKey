@@ -11,7 +11,7 @@ namespace MacroKey.LowLevelApi
         [DllImport("user32.dll")]
         protected static extern uint SendInput(uint nInputs, [MarshalAs(UnmanagedType.LPArray), In] INPUT[] pInputs, int cbSize);
 
-        public abstract void SendInput(IEnumerable<Input> input);
+        public abstract void SendInput(IEnumerable<IInput> input);
 
         [StructLayout(LayoutKind.Sequential)]
         protected struct INPUT

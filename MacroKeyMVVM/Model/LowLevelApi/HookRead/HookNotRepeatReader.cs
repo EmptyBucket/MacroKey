@@ -7,15 +7,15 @@ namespace MacroKeyMVVM.Model.LowLevelApi.HookRead
 {
     public class HookNotRepeatReader : HookReader
     {
-        private Input mPrewInput = new KeyData(0, 0);
+        private IInput mPrewInput = new KeyboardData(0, 0);
 
         public HookNotRepeatReader(IHooker hooker) : base(hooker) { }
 
-        public HookNotRepeatReader(IHooker hooker, IList<Input> sequence) : base(hooker, sequence) { }
+        public HookNotRepeatReader(IHooker hooker, IList<IInput> sequence) : base(hooker, sequence) { }
 
-        protected override bool RecordSequence(Input e)
+        protected override bool RecordSequence(IInput e)
         {
-            if (mPrewInput.VirtualCode != e.VirtualCode && mPrewInput.Message != e.Message)
+            if (mPrewInput.Key != e.Key && mPrewInput.State != e.State)
                 ReadSequence.Add(e);
             return true;
         }

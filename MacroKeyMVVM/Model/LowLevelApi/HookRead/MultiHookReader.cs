@@ -11,7 +11,7 @@ namespace MacroKeyMVVM.Model.LowLevelApi.HookRead
 
         private IEnumerable<IHooker> mHookerEnum;
 
-        public IList<Input> ReadSequence { get; }
+        public IList<IInput> ReadSequence { get; }
 
         private HookEventHandler hookEventHandler;
 
@@ -19,15 +19,15 @@ namespace MacroKeyMVVM.Model.LowLevelApi.HookRead
         {
             mHookerEnum = hookerEnum;
             hookEventHandler = RecordSequence;
-            ReadSequence = new List<Input>();
+            ReadSequence = new List<IInput>();
         }
 
-        public MultiHookReader(IEnumerable<IHooker> hookerEnum, IList<Input> sequence) : this(hookerEnum)
+        public MultiHookReader(IEnumerable<IHooker> hookerEnum, IList<IInput> sequence) : this(hookerEnum)
         {
             ReadSequence = sequence;
         }
 
-        protected virtual bool RecordSequence(Input e)
+        protected virtual bool RecordSequence(IInput e)
         {
             ReadSequence.Add(e);
             return true;

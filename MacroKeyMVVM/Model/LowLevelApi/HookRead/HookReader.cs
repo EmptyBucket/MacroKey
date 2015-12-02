@@ -10,7 +10,7 @@ namespace MacroKey.LowLevelApi.HookReader
 
         public bool IsRecord { get; private set; } = false;
 
-        public IList<Input> ReadSequence { get; }
+        public IList<IInput> ReadSequence { get; }
 
         private HookEventHandler hookEventHandler;
 
@@ -18,15 +18,15 @@ namespace MacroKey.LowLevelApi.HookReader
         {
             mHooker = hooker;
             hookEventHandler = RecordSequence;
-            ReadSequence = new List<Input>();
+            ReadSequence = new List<IInput>();
         }
 
-        public HookReader(IHooker hooker, IList<Input> sequence) : this(hooker)
+        public HookReader(IHooker hooker, IList<IInput> sequence) : this(hooker)
         {
             ReadSequence = sequence;
         }
 
-        protected virtual bool RecordSequence(Input e)
+        protected virtual bool RecordSequence(IInput e)
         {
             ReadSequence.Add(e);
             return true;

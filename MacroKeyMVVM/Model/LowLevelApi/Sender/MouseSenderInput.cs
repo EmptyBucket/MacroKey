@@ -4,6 +4,7 @@ using System.Linq;
 using MacroKey.InputData;
 using MacroKey.LowLevelApi;
 using MacroKeyMVVM.Model.InputData;
+using MacroKeyMVVM.Model.InputData.Mouse;
 
 namespace MacroKeyMVVM.Model.LowLevelApi.Sender
 {
@@ -13,31 +14,28 @@ namespace MacroKeyMVVM.Model.LowLevelApi.Sender
         private INPUT BuildMouseInput(MouseData mouseData)
         {
             INPUT input = new INPUT();
-            MOUSEEVENTF flags = MOUSEEVENTF.NONE;
-            switch (mouseData.Message)
+            input.mType = SENDINPUTEVENTTYPE.INPUT_MOUSE;
+            MouseState mouseState = (MouseState)mouseData.State;
+            switch ((MouseCodes)mouseData.Key.Code)
             {
-                case InputMessage.WM_RBUTTONUP:
-                    input.mInputUnion.mi.dwFlags = MOUSEEVENTF.RIGHTUP;
+                case MouseCodes.LeftMouse:
+                    input.mInputUnion.mi.dwFlags = mouseState == MouseState.MouseDown ? MOUSEEVENTF.LEFTDOWN : MOUSEEVENTF.LEFTUP;
                     break;
-                case InputMessage.WM_RBUTTONDOWN:
-                    flags = MOUSEEVENTF.RIGHTDOWN;
+                case MouseCodes.RightMouse:
+                    input.mInputUnion.mi.dwFlags = mouseState == MouseState.MouseDown ? MOUSEEVENTF.RIGHTDOWN : MOUSEEVENTF.RIGHTUP;
                     break;
-                case InputMessage.WM_LBUTTONUP:
-                    flags = MOUSEEVENTF.LEFTUP;
+                case MouseCodes.MidleMouse:
+                    input.mInputUnion.mi.dwFlags = mouseState == MouseState.MouseDown ? MOUSEEVENTF.MIDDLEDOWN : MOUSEEVENTF.MIDDLEUP;
                     break;
-                case InputMessage.WM_LBUTTONDOWN:
-                    flags = MOUSEEVENTF.LEFTDOWN;
-                    break;
-                case InputMessage.WM_MOUSEWHEEL:
-                    flags = MOUSEEVENTF.WHEEL;
+                case MouseCodes.WheelMouse:
+                    input.mInputUnion.mi.dwFlags = MOUSEEVENTF.WHEEL;
+                    input.mInputUnion.mi.mouseData = mouseState == MouseState.MouseWheelDown ? -100 : 100;
                     break;
             }
-            input.mType = SENDINPUTEVENTTYPE.INPUT_MOUSE;
-            input.mInputUnion.mi = new MOUSEINPUT() { dwFlags = flags };
             return input;
         }
 
-        public override void SendInput(IEnumerable<Input> inputEnum)
+        public override void SendInput(IEnumerable<IInput> inputEnum)
         {
             INPUT[] inputArray = inputEnum
                 .Select(item => BuildMouseInput((MouseData)item))

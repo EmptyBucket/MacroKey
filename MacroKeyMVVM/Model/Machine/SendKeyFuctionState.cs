@@ -28,11 +28,11 @@ namespace MacroKey.Model.Machine
                 foreach (var item in inputDelay)
                 {
                     Task.WaitAll(Task.Delay(item.Delay));
-                    Input input = item.Data;
-                    if (input is KeyData)
-                        mKeySender.SendInput(new Input[] { input });
+                    IInput input = item.Data;
+                    if (input is KeyboardData)
+                        mKeySender.SendInput(new IInput[] { input });
                     else
-                        mMouseSender.SendInput(new Input[] { input });
+                        mMouseSender.SendInput(new IInput[] { input });
                 }
             });
             return false;

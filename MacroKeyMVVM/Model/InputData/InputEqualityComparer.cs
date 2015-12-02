@@ -4,17 +4,17 @@ using System.Collections.Generic;
 namespace MacroKey.InputData
 {
     [Serializable]
-    public class InputEqualityComparer : IEqualityComparer<Input>
+    public class InputEqualityComparer : IEqualityComparer<IInput>
     {
-        public bool Equals(Input x, Input y)
+        public bool Equals(IInput x, IInput y)
         {
             if (ReferenceEquals(null, x)) return false;
             if (ReferenceEquals(null, y)) return false;
             if (ReferenceEquals(x, y)) return true;
-            return x.VirtualCode.Equals(y.VirtualCode) && x.Message.Equals(y.Message);
+            return x.Key.Equals(y.Key) && x.State.Equals(y.State);
         }
 
-        public int GetHashCode(Input obj)
+        public int GetHashCode(IInput obj)
         {
             return 0;
         }

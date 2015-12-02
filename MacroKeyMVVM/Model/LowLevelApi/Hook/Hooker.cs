@@ -4,7 +4,7 @@ using MacroKey.InputData;
 
 namespace MacroKey.LowLevelApi.Hook
 {
-    public delegate bool HookEventHandler(Input e);
+    public delegate bool HookEventHandler(IInput e);
 
     public abstract class Hooker : IHooker
     {
@@ -28,7 +28,7 @@ namespace MacroKey.LowLevelApi.Hook
 
         public event HookEventHandler Hooked;
 
-        protected bool OnHooked(Input e)
+        protected bool OnHooked(IInput e)
         {
             var handler = Hooked;
             if (handler != null)

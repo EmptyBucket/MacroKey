@@ -44,11 +44,11 @@
           <ListView.View>
             <GridView>
               <GridView.Columns>
-                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding VirtualCode, Converter={StaticResource codeToStringConverter}}"/>
+                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding Key, Converter={StaticResource codeToStringConverter}}"/>
                 <GridViewColumn Header="State">
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
-                      <ContentControl Content="{Binding Message, Converter={StaticResource keyMessageToIconConverter}}"/>
+                      <ContentControl Content="{Binding State, Converter={StaticResource stateToIconConverter}}"/>
                     </DataTemplate>
                   </GridViewColumn.CellTemplate>
                 </GridViewColumn>
@@ -84,11 +84,11 @@
           <ListView.View>
             <GridView>
               <GridView.Columns>
-                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding Data.VirtualCode, Converter={StaticResource codeToStringConverter}}"/>
+                <GridViewColumn Width="60" Header="Key" DisplayMemberBinding="{Binding Data.Key, Converter={StaticResource codeToStringConverter}}"/>
                 <GridViewColumn Header="State">
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
-                      <ContentControl Content="{Binding Data.Message, Converter={StaticResource keyMessageToIconConverter}}"/>
+                      <ContentControl Content="{Binding Data.State, Converter={StaticResource stateToIconConverter}}"/>
                     </DataTemplate>
                   </GridViewColumn.CellTemplate>
                 </GridViewColumn>
