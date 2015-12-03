@@ -150,14 +150,14 @@
         <TextBlock Style="{StaticResource TextBlockHeaderStyle}" Grid.Row="0" Text="MacroKey"/>
         <StackPanel Grid.Row="1" Margin="5">
           <WrapPanel>
-            <TextBlock Text="Execute GUI Hotkey" Margin="2"/>
-            <TextBox x:Name="executeGUIHotkeyBox" BorderBrush="Gray" Margin="12,2,2,2" Background="Transparent" IsReadOnly="True" MinWidth="20" Text="{Binding Path=GUICollection.Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}" GotFocus="textBox_GotFocus">
+            <TextBlock Text="Stop Macro Hotkey" Margin="2"/>
+            <TextBox BorderBrush="Gray" Margin="12,2,2,2" Background="Transparent" IsReadOnly="True" MinWidth="20" Text="{Binding Path=StopMacroCollection.Collection, Converter={StaticResource keyDataCollectionToStringConverter}, Mode=OneWay}" GotFocus="textBox_GotFocus">
               <i:Interaction.Triggers>
                 <i:EventTrigger EventName="LostFocus" >
-                  <i:InvokeCommandAction Command="{Binding StopRecordExecuteGUICommand}" />
+                  <i:InvokeCommandAction Command="{Binding StopRecordStopMacroCommand}" />
                 </i:EventTrigger>
                 <i:EventTrigger EventName="GotFocus" >
-                  <i:InvokeCommandAction Command="{Binding StartRecordExecuteGUICommand}" />
+                  <i:InvokeCommandAction Command="{Binding StartRecordStopMacroCommand}" />
                 </i:EventTrigger>
               </i:Interaction.Triggers>
             </TextBox>

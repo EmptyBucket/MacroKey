@@ -11,7 +11,7 @@ namespace MacroKey
     {
         public Tree<IInput> TreeRoot { get; set; }
         public Tree<IInput> TreeSequence { get; set; }
-        public ObservablePropertyCollection<IInput> SequenceGUI { get; set; }
+        public ObservablePropertyCollection<IInput> SequenceStopMacro { get; set; }
         public ObservablePropertyCollection<IInput> SequenceMacrosMode { get; set; }
         public ObservableCollection<Macros> MacrosCollection { get; set; }
         public ObservableCollection<IInput> Sequence { get; set; }
@@ -22,7 +22,7 @@ namespace MacroKey
             TreeRoot = new Tree<IInput>();
             TreeSequence = new Tree<IInput>();
 
-            SequenceGUI = new ObservablePropertyCollection<IInput>();
+            SequenceStopMacro = new ObservablePropertyCollection<IInput>();
             SequenceMacrosMode = new ObservablePropertyCollection<IInput>();
             Sequence = new ObservableCollection<IInput>();
             Macro = new ObservableCollection<InputDelay>();

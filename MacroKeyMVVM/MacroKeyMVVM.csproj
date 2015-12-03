@@ -113,10 +113,12 @@
     <Compile Include="Model\LowLevelApi\Sender\MouseSenderInput.cs" />
     <Compile Include="Model\LowLevelApi\Sender\SenderInput.cs" />
     <Compile Include="Model\Machine\Branch.cs" />
+    <Compile Include="Model\Machine\FunctionStates\CancelState.cs" />
+    <Compile Include="Model\Machine\CancellationFunctionState.cs" />
     <Compile Include="Model\Machine\FunctionState.cs" />
     <Compile Include="Model\Machine\IState.cs" />
-    <Compile Include="Model\Machine\ReturnFalseFuctionState.cs" />
-    <Compile Include="Model\Machine\SendKeyFuctionState.cs" />
+    <Compile Include="Model\Machine\FunctionStates\ReturnFalseFuctionState.cs" />
+    <Compile Include="Model\Machine\FunctionStates\SendKeyFuctionState.cs" />
     <Compile Include="Model\Machine\State.cs" />
     <Compile Include="Model\Machine\StateNotExistTreeException.cs" />
     <Compile Include="Model\Machine\StateWalker.cs" />

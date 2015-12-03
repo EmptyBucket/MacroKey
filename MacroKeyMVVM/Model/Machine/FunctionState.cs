@@ -17,9 +17,6 @@ namespace MacroKey.Machine
 
         protected abstract object Function(object arg);
 
-        public object ExecuteFunction()
-        {
-            return Function(FunctionArg);
-        }
+        public object ExecuteFunction() => Function(FunctionArg);
     }
 }
