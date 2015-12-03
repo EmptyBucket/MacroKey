@@ -78,13 +78,11 @@ namespace MacroKey.ViewModel
             mStopMacroBranch = new Branch<IInput>(mInputEqualityComparer);
             mMacrosModeBranch = new Branch<IInput>(mInputEqualityComparer);
 
-            if (Settings.Default.Setting == null)
-                Settings.Default.Setting = new AppSettings(mInputEqualityComparer);
+            Settings.Default.Setting = Settings.Default.Setting ?? new AppSettings(mInputEqualityComparer);
             AppSettings settings = Settings.Default.Setting;
             mTreeRoot = settings.TreeRoot;
             mTreeSequence = settings.TreeSequence;
             MacrosCollection = settings.MacrosCollection;
-
             StopMacroCollection = settings.SequenceStopMacro;
             MacrosModeCollection = settings.SequenceMacrosMode;
             SequenceCollection = settings.Sequence;
